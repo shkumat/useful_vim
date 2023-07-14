@@ -1,2 +1,2 @@
 # useful_vim
-( some usefule scripts for Vim )
+( some useful scripts for Vim )
