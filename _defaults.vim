@@ -1,4 +1,4 @@
-"--------------------------------------------------------------------------
+"-------------------------------------------------------------------
 " see   https://ru.wikibooks.org/wiki/Vim
 "  and  http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
 
@@ -25,18 +25,18 @@ set foldmethod=syntax
 
 "set fileformat=dos
 set fileformats=dos,unix,mac
-set nofoldenable 
+set nofoldenable
 
 "set expandtab ts=4 sw=4 ai
 "set autoindent
 set smartindent
-set softtabstop=4   
+set softtabstop=4
 set shiftwidth=4
 set tabstop=4
 set expandtab
 
 let @v=''   "string to search
-let @w=0    "is comparasion mode ON 
+let @w=0    "is comparasion mode ON
 let @x=11   "font size
 let @y=1    "is menu-bar hidden
 let @z=0    "is output-bar open
@@ -44,7 +44,12 @@ let @z=0    "is output-bar open
 function Exit()
     :delmarks A-Z0-9
     :delmarks!
-    :x
+    try
+        :x
+    catch
+        :echo ".."
+    endtry
+    :q
 endfunc
 
 function OpenFile()
@@ -55,7 +60,12 @@ function OpenFile()
     endif
 endfunc
 
-function Complile()    
+function RunScript()
+    :call SaveFile(0)
+    :!_.bat %
+endfunc
+
+function Complile()
     :call SaveFile(0)
     :set makeprg=compile.bat\ %
     :make
@@ -79,6 +89,16 @@ function VSplit()
     endif
 endfunc
 
+function Calculate()
+    let @a = trim( @* )
+    try
+        let @a= eval ( @a )
+    catch
+        let @a = ".."
+    endtry
+    :echo @a
+endfunc
+
 function CompareViews()
     if @w==0
         :windo diffthis
@@ -92,15 +112,15 @@ endfunc
 function ChangeFontSize(direction)
     if  a:direction==0
         let @x=11
-    else   
+    else
         let @x=@x+a:direction
     endif
-    let @a = 'set guifont=Consolas:h' . @x 
+    let @a = 'set guifont=Consolas:h' . @x
     execute @a
 endfunc
 
 function ShowHidePanel()
-    if (@z==1) 
+    if (@z==1)
         :cclose
         let @z=0
     else
@@ -118,7 +138,7 @@ function SearchFor(mode)
 endfunc
 
 function SearchPrev(mode)
-    if @v > '' 
+    if @v > ''
         call search( @v , 'b' )
     endif
     if a:mode == 1
@@ -127,18 +147,30 @@ function SearchPrev(mode)
 endfunc
 
 function SearchNext(mode)
-    if @v > '' 
-        call feedkeys('l')        
+    if @v > ''
+        call feedkeys('l')
         call search( @v )
-        call feedkeys('h')        
+        call feedkeys('h')
     endif
     if a:mode == 1
         call feedkeys('i')
     endif
 endfunc
 
+function GotoMessage(mode)
+    try
+        if a:mode == 1
+            :cp
+        else
+            :cn
+        endif
+    catch
+        :echo '..'
+    endtry
+endfunc
+
 function GoToLine(mode)
-    let @a = input('Go to : ') 
+    let @a = input('Go to : ')
     if @a > 0
         @aG
     endif
@@ -154,7 +186,7 @@ function SearchAndReplace(mode)
     let @a = input('Search for : ')
     let @a = ':%s/' . @a . '/' . input('Replace with : ', @a ) . '/gc'
     try
-        execute @a    
+        execute @a
     catch
         :echo "....."
     endtry
@@ -176,7 +208,7 @@ function ShowHideMenubar()
 endfunc
 
 function SearchInFiles()
-    let @a = input('Search for : ') 
+    let @a = input('Search for : ')
     let @a = ':vimgrep "' . @a . '" ' . input('In files : ','**/*.*')
     try
         execute @a
@@ -228,10 +260,39 @@ function SaveFile(mode)
     endif
 endfunc
 
-function Convert_TSV_to_SQL()
-    :%s/\t/','/g
-    :%norm I,('
-    :%norm A')
+function DeleteTrailingSpaces()
+    try
+        :%s/\s\+$//g
+        let @a='done'
+    catch
+        let @a='..'
+    endtry
+    :echo @a
+endfunc
+
+function TabsToSpaces()
+    let @a = ":%s/\t/    /g"
+    try
+        execute( @a )    
+        let @a='done.'
+    catch
+        let @a='..'
+    endtry
+    :echo @a
+endfunc
+
+function Turn_CSV_into_SQL()
+    let @a = input('Delimiter : ','\t')
+    if  @a > ' '
+        let @a= ":%s/" . @a . "/;/g"
+        try
+            execute( @a )
+        catch
+            :echo '..'
+        endtry
+        :%norm I,('
+        :%norm A')
+    endif
 endfunc
 
 if has("gui_running")
@@ -305,8 +366,8 @@ endif
     imap <silent><S-F3> <Esc>:call SearchPrev(1)<Cr>
     vmap <silent><S-F3> <Esc>:call SearchPrev(0)<Cr>
 
-"F4  - goto next error
-    nmap    <silent><F4> :cn<Cr>
+"F4  - goto next messaagr
+    nmap    <silent><F4> :call GotoMessage(0)<Cr>
     imap    <silent><F4> <Esc>:cn<Cr>i
 
 "Alt+F4  - exit without saving
@@ -319,42 +380,49 @@ endif
     imap <silent><C-F4> <Esc>:bd<Cr>
     vmap <silent><C-F4> <Esc>:bd<Cr>
 
-"Shift+F4  - goto prev error
-    nmap <silent><S-F4> :cp<Cr>
+"Shift+F4  - goto prev message
+    nmap <silent><S-F4> :call GotoMessage(1)<Cr>
     imap <silent><S-F4> <Esc>:cp<Cr>i
 
 "F5 - reserved
 
-"Alt+F5 - menu Insert
-    menu InsertInto.Beginnings :call Insert(0)<Cr>
-    menu InsertInto.Ends       :call Insert(1)<Cr>
-    nmap <silent><M-F5>        :emenu InsertInto.<Tab>
-    imap <silent><M-F5>        <Esc>:emenu InsertInto.<Tab>
-                                
+"Alt+F5 - calculate selected expression
+    nmap <silent><M-F5> :call Calculate()<Cr>
+    imap <silent><M-F5> <Esc>:call Calculate()<Cr>
+    vmap <silent><M-F5> "+y:call Calculate()<Cr>
 
-"Ctrl+F5 - reserved
+"Ctrl+F5 - run script
+    nmap <silent><C-F5> :call RunScript()<Cr>
+    imap <silent><C-F5> <Esc>:call RunScript()<Cr>
 
-"Shift+F5 - reserved
-                     
+"Shift+F5 - menu Transformations
+    menu Transformations.Del_trail_spaces   :call DeleteTrailingSpaces()<Cr>
+    menu Transformations.Tabs_to_spaces     :call TabsToSpaces()<Cr>
+    menu Transformations.Add_before_begins  :call Insert(0)<Cr>
+    menu Transformations.Add_after_ends     :call Insert(1)<Cr>
+    menu Transformations.CSV_into_SQL       :call Turn_CSV_into_SQL()<Cr>
+    nmap <silent><S-F5>     :emenu Transformations.<Tab>
+    imap <silent><S-F5>     <Esc>:emenu Transformations.<Tab>
+
 "F6  - goto next view
     nmap <F6>  <C-w>w
     imap <F6>  <Esc><C-w>w
 
-"Alt+F6  - split window horizontally
+"Alt+F6  - goto next tab
+    nmap <silent><M-F6>  :tabnext<Cr>
+    imap <silent><M-F6>  <Esc>:tabnext<Cr>
+    vmap <silent><M-F6>  <Esc>:tabnext<Cr>
+
+"Ctrl+F6  - split window horizontally
     nmap <silent><C-F6> :call HSplit()<Cr>
     imap <silent><C-F6> <Esc>:call HSplit()<Cr>i
-
-"Ctrl+F6  - goto next tab
-    nmap <silent><C-F6>  :tabnext<Cr>
-    imap <silent><C-F6>  <Esc>:tabnext<Cr>
-    vmap <silent><C-F6>  <Esc>:tabnext<Cr>
 
 "Shift+F6  - split window vertically
     nmap <silent><S-F6> :call VSplit()<Cr>
     imap <silent><S-F6> <Esc>:call VSplit()<Cr>i
 
-"F7  - Search
-    nmap <silent><F7> :call SearchFor(0)<Cr>
+"F7  - go to prev difference / search
+    nmap <silent><F7> [c
     vmap <silent><F7> <Esc>:call SearchFor(0)<Cr>
 
 "Alt+F7  - Search in files
@@ -371,10 +439,9 @@ endif
     menu CaseSensitiveness.Noignorecase :set noignorecase<Cr>
     nmap <silent><S-F7>    :emenu CaseSensitiveness.<Tab>
     imap <silent><S-F7>    <Esc>:emenu CaseSensitiveness.<Tab>
-    
-"F8  - compile
-    nmap <silent><F8>  :call Complile()<Cr>
-    imap <silent><F8>  <Esc>:call Complile()<Cr>i
+
+"F8  - go to next difference
+    nmap <silent><F8> ]c
 
 "Alt+F8  - compare views
     nmap <silent><M-F8>  :call CompareViews()<Cr>
@@ -400,84 +467,81 @@ endif
     nmap <F9> `a
     imap <F9> <Esc>`ai
 
-"Alt+F9  - set global bookmark N1
-    nmap <M-F9> mA
-    imap <M-F9> <Esc>mAi
+"Alt+F9  - go to global bookmark N1
+    nmap <M-F9> `A
+    imap <M-F9> <Esc>`Ai
 
-"Ctrl+F9  - set local bookmark N1
-    nmap <C-F9> ma
-    imap <C-F9> <Esc>mai
+"Ctrl+F9  - set global bookmark N1
+    nmap <C-F9> mA
+    imap <C-F9> <Esc>mAi
 
-"Shift+F9  - go to global bookmark N1
-    nmap <S-F9> `A
-    imap <S-F9> <Esc>`Ai
+"Shift+F9  - set local bookmark N1
+    nmap <S-F9> ma
+    imap <S-F9> <Esc>mai
+
 
 "F10  - go to local bookmark N2
     nmap <F10> `b
     imap <F10> <Esc>`bi
 
-"Alt+F10  - set global bookmark N2
-    nmap <M-F10> mB
-    imap <M-F10> <Esc>mBi
+"Alt+F10  - go to global bookmark N2
+    nmap <M-F10> `B
+    imap <M-F10> <Esc>`Bi
 
-"Ctrl+F10  - set local bookmark N2
-    nmap <C-F10> mb
-    imap <C-F10> <Esc>mbi
+"Ctrl+F10  - set global bookmark N2
+    nmap <C-F10> mB
+    imap <C-F10> <Esc>mBi
 
-"Shift+F10  - go to global bookmark N2
-    nmap <S-F10> `B
-    imap <S-F10> <Esc>`Bi
+"Shift+F10  - set local bookmark N2
+    nmap <S-F10> mb
+    imap <S-F10> <Esc>mbi
 
 "F11  - go to local bookmark N3
     nmap <F11> `c
     imap <F11> <Esc>`ci
 
-"Alt+F11  - set global bookmark N3
-    nmap <M-F11> mC
-    imap <M-F11> <Esc>mCi
+"Alt+F11  - go to global bookmark N3
+    nmap <M-F11> `C
+    imap <M-F11> <Esc>`Ci
 
-"Ctrl+F11  - set local bookmark N3
-    nmap <C-F11> mc
-    imap <C-F11> <Esc>mci
+"Ctrl+F11  - set global bookmark N3
+    nmap <C-F11> mC
+    imap <C-F11> <Esc>mCi
 
-"Shift+F11  - go to global bookmark N3
-    nmap <S-F11> `C
-    imap <S-F11> <Esc>`Ci
+"Shift+F11  - set local bookmark N3
+    nmap <S-F11> mc
+    imap <S-F11> <Esc>mci
 
 "F12  - go to local bookmark N4
     nmap <F12> `d
     imap <F12> <Esc>`di
 
-"Alt+F12  - set global bookmark N4
-    nmap <M-F12> mD
-    imap <M-F12> <Esc>mDi
+"Alt+F12  - go to global bookmark N4
+    nmap <M-F12> `D
+    imap <M-F12> <Esc>`Di
 
-"Ctrl+F12  - set local bookmark N4
-    nmap <C-F12> md
-    imap <C-F12> <Esc>mdi
+"Ctrl+F12  - set global bookmark N4
+    nmap <C-F12> mD
+    imap <C-F12> <Esc>mDi
 
-"Shift+F12  - go to global bookmark N4
-    nmap <S-F12> `D
-    imap <S-F12> <Esc>`Di
+"Shift+F12  - set local bookmark N4
+    nmap <S-F12> md
+    imap <S-F12> <Esc>mdi
 
-"Ctrl+Tab - next buffer 
-    nmap <silent> <C-Tab> :bn<Cr><Left> 
-    imap <silent> <C-Tab> <Esc>:bn<Cr> 
-    vmap <silent> <C-Tab> <Esc>:bn<Cr> 
+"Ctrl+Tab - next buffer
+    nmap <silent> <C-Tab> :bn<Cr>
+    imap <silent> <C-Tab> <Esc>:bn<Cr>i
+    vmap <silent> <C-Tab> <Esc>:bn<Cr>
 
-"Shift+Tab - next buffer 
-    nmap <silent> <S-Tab> :bn<Cr><Left> 
-    imap <silent> <S-Tab> <Esc>:bn<Cr> 
-    vmap <silent> <S-Tab> <Esc>:bn<Cr> 
+"Shift+Tab - next buffer
+    nmap <silent> <S-Tab> :bn<Cr>
+    imap <silent> <S-Tab> <Esc>:bn<Cr>i
+    vmap <silent> <S-Tab> <Esc>:bn<Cr>
 
-"BackSpace  - go to visual-mode / visual-block-mode
-    nmap <silent><BS> v
-    vmap <silent><BS> <Esc><C-v>
+"BackSpace  - go to edit-mode
+    nmap <silent><BS> i<BS>
 
-"Space  - go to command-mode
-    nmap <Space> :
-
-"Insert  - go to edit-mode 
+"Insert  - go to edit-mode
     vmap <silent><Insert> I
 
 "Alt+Insert - copy current filename to clipboard / multi-cursor insert
@@ -501,15 +565,16 @@ endif
 "Shift+Delete - cut
     vmap <S-Del> "+xi
 
-"Alt+Del - delete line 
+"Alt+Del - delete line
+    nmap <silent><M-Del> ddi
     imap <silent><M-Del> <Esc>ddi
 
-"Alt+End - duplicate line 
-"    nmap <silent><M-End> :t.<Cr>i
+"Alt+End - duplicate line
+    nmap <silent><M-End> :t.<Cr>i
     imap <silent><M-End> <Esc>:t.<Cr>i
 
-"Alt+Up  - go to prev diff / move line up
-    nmap <M-Up> [c
+"Alt+Up  - go to vertical block mode / move line up
+    nmap <M-Up> <C-v><Up>
     imap <M-Up> <Esc>:m -2<Cr>i
 
 "Ctrl+Up  - move to the prev current word / to upper case
@@ -518,17 +583,17 @@ endif
     vmap <C-Up> Ui
 
 "Alt+Left - home
-    nmap <M-Left> <Home>
+    nmap <M-Left> <C-v><Left>
     imap <M-Left> <Home>
-    vmap <M-Left> <Home>
+    vmap <M-Left> <Left>
 
 "Alt+Right - end
-    nmap <M-Right> <End>
+    nmap <M-Right> <C-v><Right>
     imap <M-Right> <End>
-    vmap <M-Right> <End>
+    vmap <M-Right> <Right>
 
-"Alt+Down  - go to next diff / move line down
-    nmap <M-Down> ]c
+"Alt+Down  - go to vertical block mode / move line down
+    nmap <M-Down> <C-v><Down>
     imap <M-Down> <Esc>:m +1<Cr>i
 
 "Ctrl+Down  - move to the next current word / to lower-case
@@ -543,30 +608,30 @@ endif
 "Shift+Home
     nmap <S-Home> v<Home>
     vmap <S-Home> <Home>
-    imap <S-Home> <Esc>v<Home>    
+    imap <S-Home> <Esc>v<Home>
 
 "Shift+End
     vmap <S-End> <End>
     nmap <S-End> v<End>
-    imap <S-End> <Esc>v<End>    
+    imap <S-End> <Esc>v<End>
 
 "Alt+PgDn  - go to prev view
     nmap <M-PageUp> <C-w>p
     imap <M-PageUp> <Esc><C-w>p
 
 "Ctrl+PgUp  - go to prev buffer
-    nmap <silent> <C-PageUp> :bp<Cr><Left> 
-    imap <silent> <C-PageUp> <Esc>:bp<Cr> 
-    vmap <silent> <C-PageUp> <Esc>:bp<Cr> 
+    nmap <silent> <C-PageUp> :bp<Cr>
+    imap <silent> <C-PageUp> <Esc>:bp<Cr>i
+    vmap <silent> <C-PageUp> <Esc>:bp<Cr>
 
 "Alt+PgDn  - go to next view
     nmap <M-PageDown> <C-w>w
     imap <M-PageDown> <Esc><C-w>w
 
 "Ctrl+PgDn  - go to next buffer
-    nmap <silent> <C-PageDown> :bn<Cr><Left> 
-    imap <silent> <C-PageDown> <Esc>:bn<Cr> 
-    vmap <silent> <C-PageDown> <Esc>:bn<Cr> 
+    nmap <silent> <C-PageDown> :bn<Cr>
+    imap <silent> <C-PageDown> <Esc>:bn<Cr>i
+    vmap <silent> <C-PageDown> <Esc>:bn<Cr>
 
 " Shift+arrow keys   -  selection
     vmap <S-Up> <Up>
@@ -630,8 +695,8 @@ endif
     nmap <silent><C-B> :emenu FoldMethod.<Tab>
 
 "Ctrl+C - copy
-    vmap <C-c> "+yi
     nmap <C-c> yy
+    vmap <C-c> "+yi
     imap <C-c> <Esc>yyi
 
 "Ctrl+D  - redo
@@ -656,13 +721,16 @@ endif
     imap <silent><C-h> <Esc>:call SearchAndReplace(1)<Cr>
 
 "Ctrl+J  - left
-    map <C-j> <Left>
+    nmap <C-j> <Left>
+    imap <C-j> <Left>
 
 "Ctrl+K  - down
-    map <C-k> <Down>
+    nmap <C-k> <Down>
+    imap <C-k> <Down>
 
 "Ctrl+L  - right
-    map <C-l> <Right>
+    nmap <C-l> <Right>
+    imap <C-l> <Right>
 
 "Ctrl+;  delete current symbol
     imap <Silent><C-;> <Esc>:ls<Cr>
@@ -700,7 +768,8 @@ endif
     vmap <silent><C-T> <Esc>:enew<Cr>
 
 "Ctrl+U  - up
-    map  <C-u> <Up>
+    nmap  <C-u> <Up>
+    imap  <C-u> <Up>
 
 "Ctrl+V  paste
     "nmap <C-v> pi<Right>
@@ -708,15 +777,15 @@ endif
     vmap <C-v> <Esc>"+gPi
     cmap <C-v> <C-r>"
 
-"Ctrl+X  - cut 
+"Ctrl+X  - cut
     vmap <C-x> "+xi
 
 "Ctrl+Y  - delete current line
     imap <C-Y> <Esc>dd<Cr><Up>i
 
-"Ctrl+Z  - undo 
+"Ctrl+Z  - undo
     nmap <silent><C-z> u
     imap <silent><C-z> <Esc>ui
 
-"\t  - convert TSV to SQL
-    nmap \t :call Convert_TSV_to_SQL()<Cr>i
+"Space  - go to command-mode
+    nmap <Space> :
