@@ -528,15 +528,19 @@ endif
     nmap <S-F12> md
     imap <S-F12> <Esc>mdi
 
+"Tab shift block right
+    imap <silent> <Tab> <Esc>v>i
+    vmap <silent> <Tab> >i
+
 "Ctrl+Tab - next buffer
     nmap <silent> <C-Tab> :bn<Cr>
     imap <silent> <C-Tab> <Esc>:bn<Cr>i
     vmap <silent> <C-Tab> <Esc>:bn<Cr>
 
-"Shift+Tab - next buffer
+"Shift+Tab - next buffer / shift block left
     nmap <silent> <S-Tab> :bn<Cr>
-    imap <silent> <S-Tab> <Esc>:bn<Cr>i
-    vmap <silent> <S-Tab> <Esc>:bn<Cr>
+    imap <silent> <S-Tab> <Esc>v<i
+    vmap <silent> <S-Tab> <i
 
 "BackSpace  - go to edit-mode
     nmap <silent><BS> i<BS>
@@ -572,6 +576,7 @@ endif
 "Alt+End - duplicate line
     nmap <silent><M-End> :t.<Cr>i
     imap <silent><M-End> <Esc>:t.<Cr>i
+    vmap <silent><M-End> yPi
 
 "Alt+Up  - go to vertical block mode / move line up
     nmap <M-Up> <C-v><Up>
