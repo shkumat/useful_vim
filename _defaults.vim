@@ -1,6 +1,6 @@
 "-------------------------------------------------------------------
-" see   https://ru.wikibooks.org/wiki/Vim
-"  and  http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
+"   see   https://ru.wikibooks.org/wiki/Vim
+"   and   http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
 
 " colorscheme slate
 " colorscheme torte
@@ -41,25 +41,6 @@ let @x=11   "font size
 let @y=1    "is menu-bar hidden
 let @z=0    "is output-bar open
 
-function Exit()
-    :delmarks A-Z0-9
-    :delmarks!
-    try
-        :x
-    catch
-        :echo ".."
-    endtry
-    :q
-endfunc
-
-function OpenFile()
-    if has("gui_running")
-        :browse confirm e
-    else
-        :Explore
-    endif
-endfunc
-
 function RunScript()
     :call SaveFile(0)
     :!_.bat %
@@ -71,6 +52,14 @@ function Complile()
     :make
     :copen
     let @z=1
+endfunc
+
+function OpenFile()
+    if has("gui_running")
+        :browse confirm e
+    else
+        :Explore
+    endif
 endfunc
 
 function HSplit()
@@ -129,9 +118,40 @@ function ShowHidePanel()
     endif
 endfunc
 
+function ShowHideMenubar()
+    if (@y==1)
+        set guioptions -=m
+        set guioptions -=T
+        let @y=0
+    else
+        set guioptions +=m
+        "set guioptions +=T
+        let @y=1
+    endif
+endfunc
+
+function Exit(mode)
+    :delmarks A-Z0-9
+    :delmarks!
+    if a:mode == 1
+        try
+            :x
+        catch
+            :echo ".."
+        endtry
+    endif
+    :q!
+endfunc
+
 function SearchFor(mode)
-    let @v = input('Search for : ')
-    call search( @v )
+    let @a= ''
+    if a:mode == 2
+        let @a = @*
+    endif
+    let @v = input('Search for : ', @a )
+    if @a > ''
+        call search( @v )
+    endif
     if a:mode == 1
         call feedkeys('i')
     endif
@@ -183,27 +203,21 @@ function GoToLine(mode)
 endfunc
 
 function SearchAndReplace(mode)
-    let @a = input('Search for : ')
-    let @a = ':%s/' . @a . '/' . input('Replace with : ', @a ) . '/gc'
-    try
-        execute @a
-    catch
-        :echo "....."
-    endtry
-    if a:mode == 1
-        :call feedkeys('i')
+    let @a= ''
+    if a:mode == 2
+        let @a = @*
     endif
-endfunc
-
-function ShowHideMenubar()
-    if (@y==1)
-        set guioptions -=m
-        set guioptions -=T
-        let @y=0
-    else
-        set guioptions +=m
-        "set guioptions +=T
-        let @y=1
+    let @a = input('Search for : ',@a)
+    if @a > ''
+        let @a = ':%s/' . @a . '/' . input('Replace with : ', @a ) . '/gc'
+        try
+            execute @a
+        catch
+            :echo "....."
+        endtry
+        if a:mode == 1
+            :call feedkeys('i')
+        endif
     endif
 endfunc
 
@@ -304,7 +318,7 @@ if has("gui_running")
 endif
 
 "Esc  - exit
-    nmap <silent><Esc> :call Exit()<Cr>
+    nmap <silent><Esc> :call Exit(1)<Cr>
 
 "F1  -  print list of buffers
     nmap <silent><F1> :ls<Cr>
@@ -348,8 +362,8 @@ endif
 
 "F3  - Search next
     nmap <silent><F3> :call SearchNext(0)<Cr>
-    imap <silent><F3> <Esc>:call SearchNext(1)<Cr>
-    vmap <silent><F3> <Esc>:call SearchNext(0)<Cr>
+    imap <silent><F3> <Esc><Right>:call SearchNext(1)<Cr>
+    vmap <silent><F3> <Esc>:call SearchNext(1)<Cr>
 
 "Alt+F3 - Close all buffers
     nmap <silent><M-F3> :%bd<Cr>
@@ -364,16 +378,16 @@ endif
 "Shift+F3  - Search prev
     nmap <silent><S-F3> :call SearchPrev(0)<Cr>
     imap <silent><S-F3> <Esc>:call SearchPrev(1)<Cr>
-    vmap <silent><S-F3> <Esc>:call SearchPrev(0)<Cr>
+    vmap <silent><S-F3> <Esc>:call SearchPrev(1)<Cr>
 
-"F4  - goto next messaagr
+"F4  - goto next message
     nmap    <silent><F4> :call GotoMessage(0)<Cr>
     imap    <silent><F4> <Esc>:cn<Cr>i
 
 "Alt+F4  - exit without saving
-    nmap <silent><M-F4> :q!<Cr>
-    imap <silent><M-F4> <Esc>:q!<Cr>
-    vmap <silent><M-F4> <Esc>:q!<Cr>
+    nmap <silent><M-F4> :call Exit(0)<Cr>
+    imap <silent><M-F4> <Esc>:call Exit(0)<Cr>
+    vmap <silent><M-F4> <Esc>:call Exit(0)<Cr>
 
 "Ctrl+F4 - Close current buffer
     nmap <silent><C-F4> :bd<Cr>
@@ -423,7 +437,8 @@ endif
 
 "F7  - go to prev difference / search
     nmap <silent><F7> [c
-    vmap <silent><F7> <Esc>:call SearchFor(0)<Cr>
+    imap <silent><F7> <Esc>:call SearchFor(1)<Cr>
+    vmap <silent><F7> "+y:call SearchFor(2)<Cr>
 
 "Alt+F7  - Search in files
     nmap <silent><M-F7> :call SearchInFiles()<Cr>
@@ -432,11 +447,12 @@ endif
 
 "Ctrl+F7 - Search and Replace
     nmap <silent><C-F7> :call SearchAndReplace(0)<Cr>
-    imap <silent><C-F7> <Esc>:call SearchAndReplace(1)<Cr>
+    imap <silent><C-F7> :call SearchAndReplace(1)<Cr>
+    vmap <silent><C-F7> "+y:call SearchAndReplace(2)<Cr>
 
 "Shift+F7 - menu Case-Sensitiveness
     menu CaseSensitiveness.IgnoreCase   :set ignorecase<Cr>
-    menu CaseSensitiveness.Noignorecase :set noignorecase<Cr>
+    menu CaseSensitiveness.NoIgnorecase :set noignorecase<Cr>
     nmap <silent><S-F7>    :emenu CaseSensitiveness.<Tab>
     imap <silent><S-F7>    <Esc>:emenu CaseSensitiveness.<Tab>
 
@@ -478,7 +494,6 @@ endif
 "Shift+F9  - set local bookmark N1
     nmap <S-F9> ma
     imap <S-F9> <Esc>mai
-
 
 "F10  - go to local bookmark N2
     nmap <F10> `b
@@ -528,7 +543,7 @@ endif
     nmap <S-F12> md
     imap <S-F12> <Esc>mdi
 
-"Tab shift block right
+"Tab - shift block right
     imap <silent> <Tab> <Esc>v>i
     vmap <silent> <Tab> >i
 
@@ -546,16 +561,17 @@ endif
     nmap <silent><BS> i<BS>
 
 "Insert  - go to edit-mode
-    vmap <silent><Insert> I
+    vmap <silent><Insert> i
 
-"Alt+Insert - copy current filename to clipboard / multi-cursor insert
+"Alt+Insert -  copy file-path to cbd / multi-cursor insert
     nmap <silent><M-Insert> :let @* = expand('%:p')<Cr>
     imap <silent><M-Insert> <Esc>i
+    vmap <silent><M-Insert> I
 
 "Ctrl+Insert - copy to clipboard
-    vmap <C-Insert> "+yi
     nmap <C-Insert> yy
     imap <C-Insert> <Esc>yyi
+    vmap <C-Insert> "+yi
 
 "Shift+Insert - paste from clipboard
     nmap <S-Insert> pi<Right>
@@ -566,12 +582,18 @@ endif
 "Delete - go to edit-mode and delete a symbol
     nmap <Del> i<Del>
 
-"Shift+Delete - cut
-    vmap <S-Del> "+xi
+"Del
+    vmap <silent><Del>  "_di
 
 "Alt+Del - delete line
-    nmap <silent><M-Del> ddi
-    imap <silent><M-Del> <Esc>ddi
+    nmap <silent><M-Del> :let @a=@*<Cr>dd:let @*=@a<Cr>i
+    imap <silent><M-Del> <Esc>:let @a=@*<Cr>dd:let @*=@a<Cr>i
+    vmap <silent><M-Del> "_di
+
+"Shift+Delete - cut
+    nmap <S-Del> ddi
+    imap <S-Del> <Esc>ddi
+    vmap <S-Del> "+xi
 
 "Alt+End - duplicate line
     nmap <silent><M-End> :t.<Cr>i
@@ -606,7 +628,7 @@ endif
     imap <C-Down> <Esc><Right>"+yw/<C-r>"<Cr>i
     vmap <C-Down> ui
 
-"Alt+Home  - go to visual-block-mode
+"Alt+Home  - go to vertical-block-mode
     nmap <M-Home> <C-v>
     imap <M-Home> <Esc><Right><C-v>
 
@@ -616,8 +638,8 @@ endif
     imap <S-Home> <Esc>v<Home>
 
 "Shift+End
-    vmap <S-End> <End>
     nmap <S-End> v<End>
+    vmap <S-End> <End>
     imap <S-End> <Esc>v<End>
 
 "Alt+PgDn  - go to prev view
@@ -701,8 +723,8 @@ endif
 
 "Ctrl+C - copy
     nmap <C-c> yy
-    vmap <C-c> "+yi
     imap <C-c> <Esc>yyi
+    vmap <C-c> "+yi
 
 "Ctrl+D  - redo
     nmap <silent><C-d> :redo<Cr>
@@ -715,6 +737,7 @@ endif
 "Ctrl+F  - search
     nmap <C-f> :call SearchFor(0)<Cr>
     imap <C-f> <Esc>:call SearchFor(1)<Cr>
+    vmap <C-f> "+y:call SearchFor(2)<Cr>
 
 "Ctrl+G  - goto line number
     nmap <silent><C-g> :call GoToLine(0)<Cr>
@@ -724,6 +747,7 @@ endif
 "Ctrl+H - Search and Replace
     nmap <silent><C-h> :call SearchAndReplace(0)<Cr>
     imap <silent><C-h> <Esc>:call SearchAndReplace(1)<Cr>
+    vmap <silent><C-h> "+y:call SearchAndReplace(2)<Cr>
 
 "Ctrl+J  - left
     nmap <C-j> <Left>
@@ -794,3 +818,6 @@ endif
 
 "Space  - go to command-mode
     nmap <Space> :
+
+"Enter - go to insert mode
+    nmap <Enter> i<Enter>
