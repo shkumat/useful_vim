@@ -1,10 +1,11 @@
-"-------------------------------------------------------------------
-"   see   https://ru.wikibooks.org/wiki/Vim
-"   and   http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
+"----------------------------------------------
+" see   https://ru.wikibooks.org/wiki/Vim
+"  and  http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
 
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
+hi Visual ctermbg=LightGray ctermfg=Black guibg=#505050 guifg=NONE
 
 set number
 set nowrap
@@ -221,6 +222,32 @@ function SearchAndReplace(mode)
     endif
 endfunc
 
+function SplitCurrentLine()
+    let @a = input('Delimiter : ')
+    let @a = ':.s/' . @a . '/\r/g'
+    try
+        execute @a
+        echo ' - done'
+    catch
+        :echo " ....."
+    endtry
+endfunc
+
+function JoinAllLines()
+    let @a = input('Delimiter : ')
+    if @a > ''
+        let @a = ':%s/\n/'. @a .'/g'
+    else
+        let @a = ':%s/\n//g'
+    endif
+    try
+        execute @a
+        echo ' - done'
+    catch
+        :echo " ....."
+    endtry
+endfunc
+
 function SearchInFiles()
     let @a = input('Search for : ')
     let @a = ':vimgrep "' . @a . '" ' . input('In files : ','**/*.*')
@@ -287,7 +314,7 @@ endfunc
 function TabsToSpaces()
     let @a = ":%s/\t/    /g"
     try
-        execute( @a )    
+        execute( @a )
         let @a='done.'
     catch
         let @a='..'
@@ -411,12 +438,15 @@ endif
 
 "Shift+F5 - menu Transformations
     menu Transformations.Del_trail_spaces   :call DeleteTrailingSpaces()<Cr>
-    menu Transformations.Tabs_to_spaces     :call TabsToSpaces()<Cr>
     menu Transformations.Add_before_begins  :call Insert(0)<Cr>
     menu Transformations.Add_after_ends     :call Insert(1)<Cr>
+    menu Transformations.Split_cur_line     :call SplitCurrentLine()<Cr>
+    menu Transformations.Join_all_lines     :call JoinAllLines()<Cr>
+    menu Transformations.Tabs_to_spaces     :call TabsToSpaces()<Cr>
     menu Transformations.CSV_into_SQL       :call Turn_CSV_into_SQL()<Cr>
     nmap <silent><S-F5>     :emenu Transformations.<Tab>
     imap <silent><S-F5>     <Esc>:emenu Transformations.<Tab>
+    vmap <silent><S-F5>     <Esc>:emenu Transformations.<Tab>
 
 "F6  - goto next view
     nmap <F6>  <C-w>w
@@ -711,9 +741,9 @@ endif
     nmap ; :delmarks A-Z0-9<Cr>
 
 "Ctrl+A  - select all
-    vmap <C-a> ggVG
-    nmap <C-a> v<Cr>ggVG
-    imap <C-a> <Esc>v<Cr>ggVG
+    nmap <C-a> ggVG
+    vmap <C-a> <Esc>ggVG
+    imap <C-a> <Esc>ggVG
 
 "Ctrl+B menu "FoldMethod"
     menu FoldMethod.Syntax  :set foldmethod=syntax<Cr>
