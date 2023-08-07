@@ -1,4 +1,4 @@
-"----------------------------------------------
+"---------------------------------------------
 " see   https://ru.wikibooks.org/wiki/Vim
 "  and  http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
 
@@ -44,7 +44,7 @@ let @z=0    "is output-bar open
 
 function RunScript()
     :call SaveFile(0)
-    :!_.bat %
+    :!__.bat %
 endfunc
 
 function Complile()
