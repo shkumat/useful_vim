@@ -1,4 +1,4 @@
-"---------------------------------------------
+"---------------------------------
 " see   https://ru.wikibooks.org/wiki/Vim
 "  and  http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
 
@@ -584,7 +584,7 @@ endif
 
 "Shift+Tab - next buffer / shift block left
     nmap <silent> <S-Tab> :bn<Cr>
-    imap <silent> <S-Tab> <Esc>v<i
+    imap <silent> <S-Tab> <Esc>:bn<Cr><Right>i
     vmap <silent> <S-Tab> <i
 
 "BackSpace  - go to edit-mode
