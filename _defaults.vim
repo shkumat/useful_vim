@@ -1,4 +1,4 @@
-"-------------------------------------------------------------------
+"------------------------------------------------------------------
 "  see  https://ru.wikibooks.org/wiki/Vim
 "   and http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
 
@@ -293,7 +293,7 @@ function SaveFile(mode)
         :w
     endif
     if a:mode == 1
-        :call feedkeys('i')
+        :call feedkeys('li')
     endif
     if a:mode == 2
         :call feedkeys('v')
