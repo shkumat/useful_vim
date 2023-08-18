@@ -1,6 +1,6 @@
-"---------------------------------
-" see   https://ru.wikibooks.org/wiki/Vim
-"  and  http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
+"-------------------------------------------------------------------
+"  see  https://ru.wikibooks.org/wiki/Vim
+"   and http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
 
 " colorscheme slate
 " colorscheme torte
@@ -23,7 +23,6 @@ set clipboard=unnamed
 "set foldmethod=manual
 "set foldmethod=indent
 set foldmethod=syntax
-
 "set fileformat=dos
 set fileformats=dos,unix,mac
 set nofoldenable
@@ -150,7 +149,7 @@ function SearchFor(mode)
         let @a = @*
     endif
     let @v = input('Search for : ', @a )
-    if @a > ''
+    if @v > ''
         call search( @v )
     endif
     if a:mode == 1
@@ -583,15 +582,20 @@ endif
     vmap <silent> <C-Tab> <Esc>:bn<Cr>
 
 "Shift+Tab - next buffer / shift block left
+if has("gui_running")
+    nmap <silent> <S-Tab> <4<Left>i
+    imap <silent> <S-Tab> <Esc><4<Left>i
+else
     nmap <silent> <S-Tab> :bn<Cr>
     imap <silent> <S-Tab> <Esc>:bn<Cr><Right>i
+endif
     vmap <silent> <S-Tab> <i
 
 "BackSpace  - go to edit-mode
     nmap <silent><BS> i<BS>
 
 "Insert  - go to edit-mode
-    vmap <silent><Insert> i
+    vmap <silent><Insert> <Esc>i
 
 "Alt+Insert -  copy file-path to cbd / multi-cursor insert
     nmap <silent><M-Insert> :let @* = expand('%:p')<Cr>
@@ -630,14 +634,15 @@ endif
     imap <silent><M-End> <Esc>:t.<Cr>i
     vmap <silent><M-End> yPi
 
-"Alt+Up  - go to vertical block mode / move line up
+"Alt+Up  - go to vertical block mode / move line up / move block up
     nmap <M-Up> <C-v><Up>
     imap <M-Up> <Esc>:m -2<Cr>i
+    vmap <M-Up> :m '<-2<CR>gv=gv
 
 "Ctrl+Up  - move to the prev current word / to upper case
-    nmap <C-Up> "+yw?<C-r>"<Cr>
-    imap <C-Up> <Esc><Right>"+yw?<C-r>"<Cr>i
-    vmap <C-Up> Ui
+    nmap <silent><C-Up> yiw:call search( @* , 'b' )<Cr>
+    imap <silent><C-Up> <Esc><Right>yiw:call search( @* , 'b' )<Cr>i
+    vmap <silent><C-Up> Ui
 
 "Alt+Left - home
     nmap <M-Left> <C-v><Left>
@@ -649,14 +654,15 @@ endif
     imap <M-Right> <End>
     vmap <M-Right> <Right>
 
-"Alt+Down  - go to vertical block mode / move line down
+"Alt+Down  - go to vertical block mode / move line down / move block down
     nmap <M-Down> <C-v><Down>
     imap <M-Down> <Esc>:m +1<Cr>i
+    vmap <M-Down> :m '>+1<CR>gv=gv
 
 "Ctrl+Down  - move to the next current word / to lower-case
-    nmap <C-Down> "+yw/<C-r>"<Cr>
-    imap <C-Down> <Esc><Right>"+yw/<C-r>"<Cr>i
-    vmap <C-Down> ui
+    nmap <silent><C-Down> yiw:call search( @* )<Cr>
+    imap <silent><C-Down> <Esc><Right>yiw:call search( @* )<Cr>i
+    vmap <silent><C-Down> ui
 
 "Alt+Home  - go to vertical-block-mode
     nmap <M-Home> <C-v>
