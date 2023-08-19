@@ -1,4 +1,4 @@
-"-------------------------------------------------------------------
+"--------------------------------------------------------------------
 "   see  https://ru.wikibooks.org/wiki/Vim
 "   and  http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
 
@@ -213,7 +213,7 @@ function SearchAndReplace(mode)
         try
             execute @a
         catch
-            :echo "...."
+            :echo "....."
         endtry
         if a:mode == 1
             :call feedkeys('i')
@@ -358,8 +358,8 @@ endif
 "Ctrl+F1  -  comment line/block with plugin "comment.vim"
 "  The plugin is here   https://www.vim.org/scripts/script.php?script_id=1528
 "  and here are my keys-maps for it:
-"   imap <silent> <C-F1>  <Esc>:call CommentLine()<CR><Up>i
-"   vmap <silent> <C-F1>  :call RangeCommentLine()<CR>
+"   imap <silent><C-F1>  <Esc>:call CommentLine()<CR><Up>i
+"   vmap <silent><C-F1>  :call RangeCommentLine()<CR>
 
 "Shift+F1  - match brace
     nmap <silent><S-F1> i<Esc>%<Cr>
@@ -378,8 +378,8 @@ endif
 "Ctrl+F2  -  uncomment line/block with plugin "comment.vim"
 "  The plugin is here   https://www.vim.org/scripts/script.php?script_id=1528
 "  and here are my keys-maps for it:
-"   imap <silent> <C-F2>  <Esc>:call UnCommentLine()<CR>i
-"   vmap <silent> <C-F2>  :call RangeUnCommentLine()<CR>
+"   imap <silent><C-F2>  <Esc>:call UnCommentLine()<CR>i
+"   vmap <silent><C-F2>  :call RangeUnCommentLine()<CR>
 
 "Shift+F2  - save file as...
     nmap <S-F2> :call SaveFileAs(0)<Cr>
@@ -644,15 +644,15 @@ endif
     imap <silent><C-Up> <Esc><Right>yiw:call search( @* , 'b' )<Cr>i
     vmap <silent><C-Up> Ui
 
-"Alt+Left - home
+"Alt+Left - home / move selected block left
     nmap <M-Left> <C-v><Left>
     imap <M-Left> <Home>
-    vmap <M-Left> <Left>
+    vmap <M-Left> :s/^ //g<Cr>i
 
-"Alt+Right - end
+"Alt+Right - end / move selected block right
     nmap <M-Right> <C-v><Right>
     imap <M-Right> <End>
-    vmap <M-Right> <Right>
+    vmap <M-Right> :s/^/ /g<Cr>i
 
 "Alt+Down  - go to vertical block mode / move line down / move block down
     nmap <M-Down> <C-v><Down>
@@ -719,32 +719,26 @@ endif
     imap <silent><C-`>  <Esc>:call ShowHideMenubar()<Cr>i
     vmap <silent><C-`>  <Esc>:call ShowHideMenubar()<Cr>v
 
-"Ctrl+0     set font size in to default
-    nmap    <silent><C-0>   :call ChangeFontSize(0)<Cr>
-    imap    <silent><C-0>   <Esc>:call ChangeFontSize(0)<Cr>i
+"Ctrl+0  set font size in to default
+    nmap <silent><C-0>   :call ChangeFontSize(0)<Cr>
+    imap <silent><C-0>   <Esc>:call ChangeFontSize(0)<Cr>i
 
-"Ctrl+-     decrease font size
-    nmap    <silent><C-->   :call ChnangeFontSize(-1)<Cr>
-    imap    <silent><C-->   <Esc>:call ChnangeFontSize(-1)<Cr>i
+"Ctrl+-  decrease font size
+    nmap <silent><C-->   :call ChnangeFontSize(-1)<Cr>
+    imap <silent><C-->   <Esc>:call ChnangeFontSize(-1)<Cr>i
 
-"Ctrl+=     increase font size
-    nmap    <silent><C-=>   :call ChnangeFontSize(1)<Cr>
-    imap    <silent><C-=>   <Esc>:call ChnangeFontSize(1)<Cr>i
+"Ctrl+=  increase font size
+    nmap <silent><C-=>   :call ChnangeFontSize(1)<Cr>
+    imap <silent><C-=>   <Esc>:call ChnangeFontSize(1)<Cr>i
 
 " Ctrl+\  - set scrollbind - synchronous scrolling of views
-    nmap    <silent><C-\> :set scrollbind<Cr>
-    imap    <silent><C-\> <Esc>:set scrollbind<Cr>
-    vmap    <silent><C-\> <Esc>:set scrollbind<Cr>
+    nmap <silent><C-\> :set scrollbind<Cr>
+    imap <silent><C-\> <Esc>:set scrollbind<Cr>
+    vmap <silent><C-\> <Esc>:set scrollbind<Cr>
 
 "Ctrl+]  - open all folders
     nmap <silent><C-]> zR
     imap <silent><C-]> <Esc>zRi
-
-",  - delete local bookmarks
-    nmap , :delmarks!<Cr>
-
-";  - delete global bookmarks
-    nmap ; :delmarks A-Z0-9<Cr>
 
 "Ctrl+A  - select all
     nmap <C-a> ggVG
@@ -851,6 +845,12 @@ endif
 "Ctrl+Z  - undo
     nmap <silent><C-z> u
     imap <silent><C-z> <Esc>ui
+
+",  - delete local bookmarks
+    nmap , :delmarks!<Cr>
+
+";  - delete global bookmarks
+    nmap ; :delmarks A-Z0-9<Cr>
 
 "Space  - go to command-mode
     nmap <Space> :
