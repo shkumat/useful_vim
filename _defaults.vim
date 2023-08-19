@@ -1,11 +1,11 @@
-"------------------------------------------------------------------
-"  see  https://ru.wikibooks.org/wiki/Vim
-"   and http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
+"-------------------------------------------------------------------
+"   see  https://ru.wikibooks.org/wiki/Vim
+"   and  http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
 
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
-hi Visual ctermbg=LightGray ctermfg=Black guibg=#505050 guifg=NONE
+hi Visual ctermbg=darkgrey ctermfg=NONE guibg=#555555 guifg=NONE
 
 set number
 set nowrap
@@ -213,7 +213,7 @@ function SearchAndReplace(mode)
         try
             execute @a
         catch
-            :echo "....."
+            :echo "...."
         endtry
         if a:mode == 1
             :call feedkeys('i')
