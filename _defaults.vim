@@ -1,11 +1,14 @@
-"--------------------------------------------------------------------
-"   see  https://ru.wikibooks.org/wiki/Vim
-"   and  http://konishchevdmitry.blogspot.com/2008/07/howto-vim.html
-
+"------------------------------------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
 hi Visual ctermbg=darkgrey ctermfg=NONE guibg=#555555 guifg=NONE
+
+language en_US
+language time en_US
+language ctype en_US
+language messages en_US
+set langmenu=en_US
 
 set number
 set nowrap
@@ -355,11 +358,12 @@ endif
     vmap <silent><M-F1> zf
     imap <silent><M-F1> <Esc>zc<Cr>i
 
-"Ctrl+F1  -  comment line/block with plugin "comment.vim"
-"  The plugin is here   https://www.vim.org/scripts/script.php?script_id=1528
+"Ctrl+F1 - comment line/block in plugin "comment.vim"
+"  The plugin is here https://www.vim.org/scripts/script.php?script_id=1528
 "  and here are my keys-maps for it:
-"   imap <silent><C-F1>  <Esc>:call CommentLine()<CR><Up>i
-"   vmap <silent><C-F1>  :call RangeCommentLine()<CR>
+"   nnoremap <silent> <C-F1>  <Esc>:call CommentLine()<CR><Up>i
+"   imap     <silent> <C-F1>  <Esc>:call CommentLine()<CR><Up>i
+"   vmap     <silent> <C-F1>  :call RangeCommentLine()<CR>
 
 "Shift+F1  - match brace
     nmap <silent><S-F1> i<Esc>%<Cr>
@@ -375,11 +379,12 @@ endif
     vmap <silent><M-F2> <Esc>zo
     imap <silent><M-F2> <Esc>zoi
 
-"Ctrl+F2  -  uncomment line/block with plugin "comment.vim"
-"  The plugin is here   https://www.vim.org/scripts/script.php?script_id=1528
+"Ctrl+F2 - uncomment line/block in plugin "comment.vim"
+"  The plugin is here https://www.vim.org/scripts/script.php?script_id=1528
 "  and here are my keys-maps for it:
-"   imap <silent><C-F2>  <Esc>:call UnCommentLine()<CR>i
-"   vmap <silent><C-F2>  :call RangeUnCommentLine()<CR>
+"   nnoremap <silent> <C-F2>  :call UnCommentLine()<CR>i
+"   imap     <silent> <C-F2>  <Esc>:call UnCommentLine()<CR>i
+"   vmap     <silent> <C-F2>  :call RangeUnCommentLine()<CR>
 
 "Shift+F2  - save file as...
     nmap <S-F2> :call SaveFileAs(0)<Cr>
@@ -492,14 +497,6 @@ endif
     nmap <silent><M-F8>  :call CompareViews()<Cr>
     imap <silent><M-F8>  <Esc>:call CompareViews()<Cr>
 
-"Ctrl+F8 - menu Convert to
-    menu ConvertTo.windows :w ++enc=cp1251 ++ff=dos<Cr>
-    menu ConvertTo.utf-8   :w ++enc=utf8   ++ff=dos<Cr>
-    menu ConvertTo.cp866   :w ++enc=cp866  ++ff=dos<Cr>
-    menu ConvertTo.koi8-r  :w ++enc=koi8-r ++ff=dos<Cr>
-    menu ConvertTo.koi8-u  :w ++enc=koi8-u ++ff=dos<Cr>
-    nmap <silent><C-F8>    :emenu ConvertTo.<TAB>
-
 "Shift+F8 - menu Encoding
     menu Encoding.windows  :e ++enc=cp1251 ++ff=dos<Cr>
     menu Encoding.utf-8    :e ++enc=utf8   ++ff=dos<Cr>
@@ -507,6 +504,14 @@ endif
     menu Encoding.koi8-r   :e ++enc=koi8-r ++ff=dos<Cr>
     menu Encoding.koi8-u   :e ++enc=koi8-u ++ff=dos<Cr>
     nmap <silent><S-F8>    :emenu Encoding.<TAB>
+
+"Ctrl+F8 - menu Convert to
+    menu ConvertTo.windows :w ++enc=cp1251 ++ff=dos<Cr>
+    menu ConvertTo.utf-8   :w ++enc=utf8   ++ff=dos<Cr>
+    menu ConvertTo.cp866   :w ++enc=cp866  ++ff=dos<Cr>
+    menu ConvertTo.koi8-r  :w ++enc=koi8-r ++ff=dos<Cr>
+    menu ConvertTo.koi8-u  :w ++enc=koi8-u ++ff=dos<Cr>
+    nmap <silent><C-F8>    :emenu ConvertTo.<TAB>
 
 "F9  - go to local bookmark N1
     nmap <F9> `a
@@ -837,6 +842,8 @@ endif
     cmap <C-v> <C-r>"
 
 "Ctrl+X  - cut
+    nmap <C-x> ddi
+    imap <C-x> <Esc>ddi
     vmap <C-x> "+xi
 
 "Ctrl+Y  - delete current line
@@ -856,4 +863,4 @@ endif
     nmap <Space> :
 
 "Enter - go to insert mode
-    nmap <Enter> i<Enter>
+    nmap <Enter> i
