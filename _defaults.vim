@@ -1,4 +1,4 @@
-"------------------------------------
+"-------------------------------------------------------------------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -489,6 +489,7 @@ endif
     menu CaseSensitiveness.NoIgnorecase :set noignorecase<Cr>
     nmap <silent><S-F7>    :emenu CaseSensitiveness.<Tab>
     imap <silent><S-F7>    <Esc>:emenu CaseSensitiveness.<Tab>
+    vmap <silent><S-F7>    <Esc>:emenu CaseSensitiveness.<Tab>
 
 "F8  - go to next difference
     nmap <silent><F8> ]c
@@ -504,6 +505,8 @@ endif
     menu Encoding.koi8-r   :e ++enc=koi8-r ++ff=dos<Cr>
     menu Encoding.koi8-u   :e ++enc=koi8-u ++ff=dos<Cr>
     nmap <silent><S-F8>    :emenu Encoding.<TAB>
+    imap <silent><S-F8>    <Exc>:emenu Encoding.<TAB>
+    vmap <silent><S-F8>    <Exc>:emenu Encoding.<TAB>
 
 "Ctrl+F8 - menu Convert to
     menu ConvertTo.windows :w ++enc=cp1251 ++ff=dos<Cr>
@@ -512,6 +515,8 @@ endif
     menu ConvertTo.koi8-r  :w ++enc=koi8-r ++ff=dos<Cr>
     menu ConvertTo.koi8-u  :w ++enc=koi8-u ++ff=dos<Cr>
     nmap <silent><C-F8>    :emenu ConvertTo.<TAB>
+    imap <silent><C-F8>    <Esc>:emenu ConvertTo.<TAB>
+    vmap <silent><C-F8>    <Esc>:emenu ConvertTo.<TAB>
 
 "F9  - go to local bookmark N1
     nmap <F9> `a
@@ -579,7 +584,7 @@ endif
 
 "Tab - shift block right
     imap <silent> <Tab> <Esc>v>i
-    vmap <silent> <Tab> >i
+    vmap <silent> <Tab> >gv
 
 "Ctrl+Tab - next buffer
     nmap <silent> <C-Tab> :bn<Cr>
@@ -594,7 +599,7 @@ else
     nmap <silent> <S-Tab> :bn<Cr>
     imap <silent> <S-Tab> <Esc>:bn<Cr><Right>i
 endif
-    vmap <silent> <S-Tab> <i
+    vmap <silent> <S-Tab> <gv
 
 "BackSpace  - go to edit-mode
     nmap <silent><BS> i<BS>
@@ -652,12 +657,12 @@ endif
 "Alt+Left - home / move selected block left
     nmap <M-Left> <C-v><Left>
     imap <M-Left> <Home>
-    vmap <M-Left> :s/^ //g<Cr>i
+    vmap <M-Left> :s/^ //g<Cr>gv
 
 "Alt+Right - end / move selected block right
     nmap <M-Right> <C-v><Right>
     imap <M-Right> <End>
-    vmap <M-Right> :s/^/ /g<Cr>i
+    vmap <M-Right> :s/^/ /g<Cr>gv
 
 "Alt+Down  - go to vertical block mode / move line down / move block down
     nmap <M-Down> <C-v><Down>
@@ -727,14 +732,17 @@ endif
 "Ctrl+0  set font size in to default
     nmap <silent><C-0>   :call ChangeFontSize(0)<Cr>
     imap <silent><C-0>   <Esc>:call ChangeFontSize(0)<Cr>i
+    vmap <silent><C-0>   <Esc>:call ChangeFontSize(0)<Cr>v
 
 "Ctrl+-  decrease font size
     nmap <silent><C-->   :call ChnangeFontSize(-1)<Cr>
     imap <silent><C-->   <Esc>:call ChnangeFontSize(-1)<Cr>i
+    vmap <silent><C-->   <Esc>:call ChnangeFontSize(-1)<Cr>v
 
 "Ctrl+=  increase font size
     nmap <silent><C-=>   :call ChnangeFontSize(1)<Cr>
     imap <silent><C-=>   <Esc>:call ChnangeFontSize(1)<Cr>i
+    vmap <silent><C-=>   <Esc>:call ChnangeFontSize(1)<Cr>v
 
 " Ctrl+\  - set scrollbind - synchronous scrolling of views
     nmap <silent><C-\> :set scrollbind<Cr>
@@ -755,6 +763,8 @@ endif
     menu FoldMethod.Manual  :set foldmethod=manual<Cr>
     menu FoldMethod.Indent  :set foldmethod=indent<Cr>
     nmap <silent><C-B> :emenu FoldMethod.<Tab>
+    imap <silent><C-B> <Esc>:emenu FoldMethod.<Tab>
+    vmap <silent><C-B> <Esc>:emenu FoldMethod.<Tab>
 
 "Ctrl+C - copy
     nmap <C-c> yy
