@@ -1,4 +1,4 @@
-"-------------------------------------------------------------------
+"-----------------------------------------------------------------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -797,16 +797,20 @@ endif
 "Ctrl+J  - left
     nmap <C-j> <Left>
     imap <C-j> <Left>
+    vmap <C-j> <Left>
 
 "Ctrl+K  - down
     nmap <C-k> <Down>
     imap <C-k> <Down>
+    vmap <C-k> <Down>
 
 "Ctrl+L  - right
     nmap <C-l> <Right>
     imap <C-l> <Right>
+    vmap <C-l> <Right>
 
 "Ctrl+;  delete current symbol
+    nmap <Silent><C-;> :ls<Cr>i
     imap <Silent><C-;> <Esc>:ls<Cr>
 
 "Ctrl+N - New file
@@ -827,9 +831,10 @@ endif
     nmap <silent><C-Q>  :call SaveFile(0)<Cr> :!CopyToHistory.bat %<Cr>
     imap <silent><C-Q>  <Esc>:call SaveFile(0)<Cr> :!CopyToHistory.bat %<Cr>i
 
-"Ctrl+R  - show/hide bottem panel
+"Ctrl+R  - show/hide bottem panel  / calculate selected expression
     nmap <silent><C-R>  :call ShowHidePanel()<Cr>
     imap <silent><C-R>  <Esc>:call ShowHidePanel()<Cr>i
+    vmap <silent><C-R>  "+y:call Calculate()<Cr>
 
 "Ctrl+S - Save file
     nmap <C-S> :call SaveFile(0)<Cr>
@@ -844,6 +849,7 @@ endif
 "Ctrl+U  - up
     nmap  <C-u> <Up>
     imap  <C-u> <Up>
+    vmap  <C-u> <Up>
 
 "Ctrl+V  paste
     "nmap <C-v> pi<Right>
