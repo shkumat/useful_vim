@@ -1,4 +1,4 @@
-"-----------------------------------------------------------------
+"--------------------------------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -431,10 +431,7 @@ endif
 
 "F5 - reserved
 
-"Alt+F5 - calculate selected expression
-    nmap <silent><M-F5> :call Calculate()<Cr>
-    imap <silent><M-F5> <Esc>:call Calculate()<Cr>
-    vmap <silent><M-F5> "+y:call Calculate()<Cr>
+"Alt+F5 - reserved
 
 "Ctrl+F5 - run script
     nmap <silent><C-F5> :call RunScript()<Cr>
