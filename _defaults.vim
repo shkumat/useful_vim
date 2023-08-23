@@ -1,4 +1,4 @@
-"--------------------------------
+"-----------------------------------------------------------------------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -38,6 +38,7 @@ set shiftwidth=4
 set tabstop=4
 set expandtab
 
+let @s=''   "line of the block to select
 let @v=''   "string to search
 let @w=0    "is comparasion mode ON
 let @x=11   "font size
@@ -338,6 +339,29 @@ function Turn_CSV_into_SQL()
     endif
 endfunc
 
+function SelectBlock(mode)
+    if @s > ''
+        try
+            :call feedkeys('V')
+            let num = 0
+            while num < strchars( @s )
+                :call feedkeys( @s[ num ] )
+                let  num += 1
+            endwhile
+            :call feedkeys('g')
+            :call feedkeys('g')
+        catch
+            :echo "..."
+        endtry
+        let @s=''
+    else
+        let @s=getcurpos()[1]
+        if a:mode == 1
+            :call feedkeys('i')
+        endif
+    endif
+endfunc
+
 if has("gui_running")
     set guioptions-=r
     "set showtabline=2
@@ -431,11 +455,18 @@ endif
 
 "F5 - reserved
 
-"Alt+F5 - reserved
+"Alt+F5 - menu "FoldMethod"
+    menu FoldMethod.Syntax  :set foldmethod=syntax<Cr>
+    menu FoldMethod.Manual  :set foldmethod=manual<Cr>
+    menu FoldMethod.Indent  :set foldmethod=indent<Cr>
+    nmap <silent><M-F5> :emenu FoldMethod.<Tab>
+    imap <silent><M-F5> <Esc>:emenu FoldMethod.<Tab>
+    vmap <silent><M-F5> <Esc>:emenu FoldMethod.<Tab>
 
 "Ctrl+F5 - run script
     nmap <silent><C-F5> :call RunScript()<Cr>
     imap <silent><C-F5> <Esc>:call RunScript()<Cr>
+    vmap <silent><C-F5> <Esc>:call RunScript()<Cr>
 
 "Shift+F5 - menu Transformations
     menu Transformations.Del_trail_spaces   :call DeleteTrailingSpaces()<Cr>
@@ -755,13 +786,10 @@ endif
     vmap <C-a> <Esc>ggVG
     imap <C-a> <Esc>ggVG
 
-"Ctrl+B menu "FoldMethod"
-    menu FoldMethod.Syntax  :set foldmethod=syntax<Cr>
-    menu FoldMethod.Manual  :set foldmethod=manual<Cr>
-    menu FoldMethod.Indent  :set foldmethod=indent<Cr>
-    nmap <silent><C-B> :emenu FoldMethod.<Tab>
-    imap <silent><C-B> <Esc>:emenu FoldMethod.<Tab>
-    vmap <silent><C-B> <Esc>:emenu FoldMethod.<Tab>
+"Ctrl+B - select block
+    nmap <silent><C-B> :call SelectBlock(0)<Cr>
+    imap <silent><C-B> <Esc>:call SelectBlock(1)<Cr>
+    vmap <silent><C-B> <Esc>:call SelectBlock(0)<Cr>
 
 "Ctrl+C - copy
     nmap <C-c> yy
