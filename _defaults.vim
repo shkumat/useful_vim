@@ -1,4 +1,4 @@
-"-----------------------------------------------------------------------
+"--------------------------------------------------------------------------------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -269,9 +269,10 @@ function Insert(mode)
         finish
     endif
     if a:mode > 0
-         execute(':%norm A' . @a )
+        execute(':%norm A' . @a)
     else
-         execute(':%norm I' . @a )
+"        execute(':%norm I' . @a )
+        execute(':%s!^!' . @a . '!')
     endif
     call feedkeys('i')
 endfunc
@@ -297,10 +298,13 @@ function SaveFile(mode)
         :w
     endif
     if a:mode == 1
-        :call feedkeys('li')
+        if getcurpos()[2]>1
+            :call feedkeys('l')
+        endif
+        :call feedkeys('i')
     endif
     if a:mode == 2
-        :call feedkeys('v')
+        :call feedkeys('vgv')
     endif
 endfunc
 
@@ -370,8 +374,50 @@ if has("gui_running")
     call ShowHideMenubar()
 endif
 
+function GetCommentForTheFile()
+    let CommentByFileType = { 'vim':'"','vimrc':'"','sql':'--','bat':'rem ','cmd':'rem ','py':'#','ps1':'#','c':'\/\/','h':'\/\/','cs':'\/\/','js':'\/\/','sc':'\/\/','ts':'\/\/','cpp':'\/\/','hpp':'\/\/','pas':'\/\/','java':'\/\/','scala':'\/\/' }
+    let @a = tolower( expand('%:e') )
+    if has_key( CommentByFileType , @a )
+        return CommentByFileType[ @a ]
+    else
+        return ''
+    endif
+endfunc
+
+function UnComment(mode)
+    let @a = GetCommentForTheFile()
+    if @a > ''
+        let @a = 's/^' . @a . '//'
+        if a:mode == 1
+            let @a = ":'<,'>" . @a
+        endif
+        try
+            execute( @a )
+        catch
+        endtry
+    endif
+endfunc
+
+function Comment(mode)
+    let @a = GetCommentForTheFile()
+    if @a > ''
+        if ( stridx( trim( getline(".") ) , @a ) !=-1 ) || ( @a=='\/\/' && stridx( trim( getline(".") ) , '//' ) !=-1 )
+            return
+        endif
+        let @a = 's!^!' . @a . '!'
+        if a:mode == 1
+            let @a = ":'<,'>" . @a
+        endif
+        try
+            execute( @a )
+        catch
+        endtry
+    endif
+endfunc
+
 "Esc  - exit
     nmap <silent><Esc> :call Exit(1)<Cr>
+    imap <silent><Esc> <Esc>:call SaveFile(0)<Cr>
 
 "F1  -  print list of buffers
     nmap <silent><F1> :ls<Cr>
@@ -382,12 +428,10 @@ endif
     vmap <silent><M-F1> zf
     imap <silent><M-F1> <Esc>zc<Cr>i
 
-"Ctrl+F1 - comment line/block in plugin "comment.vim"
-"  The plugin is here https://www.vim.org/scripts/script.php?script_id=1528
-"  and here are my keys-maps for it:
-"   nnoremap <silent> <C-F1>  <Esc>:call CommentLine()<CR><Up>i
-"   imap     <silent> <C-F1>  <Esc>:call CommentLine()<CR><Up>i
-"   vmap     <silent> <C-F1>  :call RangeCommentLine()<CR>
+"Ctrl+F1 - comment line/block
+   nmap <silent> <C-F1>  :call Comment(0)<Cr>i
+   imap <silent> <C-F1>  <Esc>:call Comment(0)<Cr>i
+   vmap <silent> <C-F1>  <Esc>:call Comment(1)<Cr>gv
 
 "Shift+F1  - match brace
     nmap <silent><S-F1> i<Esc>%<Cr>
@@ -403,12 +447,10 @@ endif
     vmap <silent><M-F2> <Esc>zo
     imap <silent><M-F2> <Esc>zoi
 
-"Ctrl+F2 - uncomment line/block in plugin "comment.vim"
-"  The plugin is here https://www.vim.org/scripts/script.php?script_id=1528
-"  and here are my keys-maps for it:
-"   nnoremap <silent> <C-F2>  :call UnCommentLine()<CR>i
-"   imap     <silent> <C-F2>  <Esc>:call UnCommentLine()<CR>i
-"   vmap     <silent> <C-F2>  :call RangeUnCommentLine()<CR>
+"Ctrl+F2 - unComment line/block
+   nmap <silent> <C-F2>  :call UnComment(0)<Cr>i
+   imap <silent> <C-F2>  <Esc>:call UnComment(0)<Cr>i
+   vmap <silent> <C-F2>  <Esc>:call UnComment(1)<Cr>gv
 
 "Shift+F2  - save file as...
     nmap <S-F2> :call SaveFileAs(0)<Cr>
@@ -672,14 +714,14 @@ endif
     imap <silent><M-End> <Esc>:t.<Cr>i
     vmap <silent><M-End> yPi
 
-"Alt+Up  - go to vertical block mode / move line up / move block up
-    nmap <M-Up> <C-v><Up>
+"Alt+Up  - (go to vertical block mode) / move line up / move block up
+"    nmap <M-Up> <C-v><Up>
     imap <M-Up> <Esc>:m -2<Cr>i
     vmap <M-Up> :m '<-2<CR>gv=gv
 
-"Ctrl+Up  - move to the prev current word / to upper case
-    nmap <silent><C-Up> yiw:call search( @* , 'b' )<Cr>
-    imap <silent><C-Up> <Esc><Right>yiw:call search( @* , 'b' )<Cr>i
+"Ctrl+Up  - move to the prev current word / to upper case selection
+    nmap <silent><C-Up> :let @a=@*<Cr>yiw:call search(@*,'b')<Cr>:let @*=@a<Cr>
+    imap <silent><C-Up> <Esc><Right>:let @a=@*<Cr>yiw:call search( @*,'b')<Cr>:let @*=@a<Cr>i
     vmap <silent><C-Up> Ui
 
 "Alt+Left - home / move selected block left
@@ -692,14 +734,14 @@ endif
     imap <M-Right> <End>
     vmap <M-Right> :s/^/ /g<Cr>gv
 
-"Alt+Down  - go to vertical block mode / move line down / move block down
-    nmap <M-Down> <C-v><Down>
+"Alt+Down  - (go to vertical block mode) / move line down / move block down
+"    nmap <M-Down> <C-v><Down>
     imap <M-Down> <Esc>:m +1<Cr>i
     vmap <M-Down> :m '>+1<CR>gv=gv
 
-"Ctrl+Down  - move to the next current word / to lower-case
-    nmap <silent><C-Down> yiw:call search( @* )<Cr>
-    imap <silent><C-Down> <Esc><Right>yiw:call search( @* )<Cr>i
+"Ctrl+Down  - move to the next current word / to lower-case selection
+    nmap <silent><C-Down> :let @a=@*<Cr>yiw:call search(@*)<Cr>:let @*=@a<Cr>
+    imap <silent><C-Down> <Esc><Right>:let @a=@*<Cr>yiw:call search( @* )<Cr>:let @*=@a<Cr>i
     vmap <silent><C-Down> ui
 
 "Alt+Home  - go to vertical-block-mode
