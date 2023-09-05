@@ -1,4 +1,4 @@
-"--------------------
+"--------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -60,6 +60,13 @@ let @z=0    "is output-bar open
 function RunScript()
     :call SaveFile(0)
     :!__.bat %
+endfunc
+
+function Print(str)
+    let @a = a:str
+    call feedkeys('"')
+    call feedkeys('a')
+    call feedkeys('p')
 endfunc
 
 function OpenFile()
@@ -229,10 +236,10 @@ function SearchAndReplace(mode)
         try
             execute @a
         catch
-            :echo "....."
+            echo "....."
         endtry
         if a:mode == 1
-            :call feedkeys('i')
+            call feedkeys('i')
         endif
     endif
 endfunc
@@ -244,7 +251,7 @@ function SplitCurrentLine()
         execute @a
         echo ' - done'
     catch
-        :echo " ....."
+        echo " ....."
     endtry
 endfunc
 
@@ -514,7 +521,7 @@ endfunc
     nmap <silent><S-F4> :call GotoMessage(1)<Cr>
     imap <silent><S-F4> <Esc>:cp<Cr>i
 
-"F5 - print list of buffers
+"F5 - show list of buffers
     nmap <silent><F5> :ls<Cr>
     imap <silent><F5> <Esc>:ls<Cr>
     vmap <silent><F5> <gv
@@ -753,7 +760,7 @@ endif
     vmap <M-Left> :s/^ //g<Cr>gv
 
 "Alt+Right - end / move selected block right
-    nmap <M-Right> <Home>
+    nmap <M-Right> <End>
     imap <M-Right> <End>
     vmap <M-Right> :s/^/ /g<Cr>gv
 
