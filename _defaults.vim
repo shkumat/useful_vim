@@ -1,4 +1,4 @@
-"--------
+"--------------------------------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -333,6 +333,11 @@ function SaveFile(mode)
     if a:mode == 1
         call feedkeys('i')
     endif
+    if a:mode == 2
+        call feedkeys('g')
+        call feedkeys('v')
+    endif
+
 endfunc
 
 function DeleteTrailingSpaces()
@@ -465,7 +470,7 @@ endfunc
 "F2  - save file
     nmap <F2> :call SaveFile(0)<Cr>
     imap <F2> <Esc>:call SaveFile(1)<Cr>
-    vmap <F2> <Esc>:call SaveSelection()<Cr>
+    vmap <F2> <Esc>:call SaveFile(2)<Cr>
 
 "Alt+F2  - open folder
     nmap <silent><M-F2> zo
@@ -937,7 +942,7 @@ endif
 "Ctrl+S - Save file
     nmap <C-S> :call SaveFile(0)<Cr>
     imap <C-S> <Esc>:call SaveFile(1)<Cr>
-    vmap <C-S> <Esc>:call SaveSelection()<Cr>
+    vmap <C-S> <Esc>:call SaveFile(2)<Cr>
 
 "Ctrl+T - New file
     nmap <silent><C-T> :enew<CR>
