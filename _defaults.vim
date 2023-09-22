@@ -1,4 +1,4 @@
-" -----------------------------------------------------------------------------------------
+" -----------------------------------------------------------------------------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -91,7 +91,7 @@ function Calculate()
     catch
         let @a = ".."
     endtry
-    :echo @a
+    echo @a
 endfunc
 
 function CompareViews()
@@ -194,7 +194,7 @@ function SearchInFiles(mode)
         try
             execute @a
         catch
-            :echo '...'
+            echo '...'
         endtry
         :copen
         let @z=1
@@ -212,7 +212,7 @@ function GotoMessage(mode)
             :cn
         endif
     catch
-        :echo '...'
+        echo '...'
     endtry
 endfunc
 
@@ -240,7 +240,7 @@ function SearchAndReplace(mode)
         try
             execute @a
         catch
-            echo "....."
+            echo "..."
         endtry
         if a:mode == 1
             call feedkeys('i')
@@ -255,7 +255,7 @@ function SplitCurrentLine()
         execute @a
         echo ' - done'
     catch
-        echo " ....."
+        echo '...'
     endtry
 endfunc
 
@@ -270,7 +270,7 @@ function JoinAllLines()
         execute @a
         echo ' - done'
     catch
-        :echo '...'
+        echo '...'
     endtry
 endfunc
 
@@ -335,18 +335,18 @@ endfunc
 function DeleteTrailingSpaces()
     try
         :%s/\s\+$//g
-        let @a='done'
+        let @a=''
     catch
         let @a='...'
     endtry
-    :echo @a
+    echo @a
 endfunc
 
 function TabsToSpaces()
     let @a = ":%s/\t/    /g"
     try
         execute( @a )
-        let @a='done.'
+        let @a=''
     catch
         let @a='...'
     endtry
@@ -376,16 +376,16 @@ function SelectBlock(mode)
                 :call feedkeys( @s[ num ] )
                 let  num += 1
             endwhile
-            :call feedkeys('g')
-            :call feedkeys('g')
+            call feedkeys('g')
+            call feedkeys('g')
         catch
-            :echo "..."
+            echo "..."
         endtry
         let @s=''
     else
         let @s=getcurpos()[1]
         if a:mode == 1
-            :call feedkeys('i')
+            call feedkeys('i')
         endif
     endif
 endfunc
@@ -484,9 +484,9 @@ endif
     vmap <silent><F3> :s/^ //g<Cr>gv
 
 "Alt+F3 - Menu 'Clear'
-    menu Clear.Local_bookmarks  :delmarks!<Cr>
-    menu Clear.Global_bookmarks :delmarks A-Z0-9<Cr>
-    menu Clear.All_buffers      :%bd<Cr>
+    menu Clear.Local_bookmarks  :delmarks!<Cr>:echo ''<Cr>
+    menu Clear.Global_bookmarks :delmarks A-Z0-9<Cr>:echo ''<Cr>
+    menu Clear.All_buffers      :%bd<Cr>:echo ''<Cr>
     nmap <silent><M-F3>     :emenu Clear.<TAB>
     imap <silent><M-F3>     <Esc>:emenu Clear.<TAB>
     vmap <silent><M-F3>     <Esc>:emenu Clear.<TAB>
@@ -528,9 +528,9 @@ endif
 
 "Alt+F5 - Menu 'Features'
     menu Features.Histosy       :bro ol<Cr>
-    menu Features.Text_to_HEX   :%!xxd<Cr>
-    menu Features.HEX_to_Text   :%!xxd -r<Cr>
-    menu Features.Copy_FilePath :silent let @* = expand('%:p')<Cr>
+    menu Features.Text_to_HEX   :%!xxd<Cr>:echo ''<Cr>
+    menu Features.HEX_to_Text   :%!xxd -r<Cr>:echo ''<Cr>
+    menu Features.Copy_FilePath :let @* = expand('%:p')<Cr>:echo ''<Cr>
     nmap <silent><M-F5>         :emenu Features.<TAB>
     imap <silent><M-F5>         <Esc>:emenu Features.<TAB>
     vmap <silent><M-F5>         <Esc>:emenu Features.<TAB>
@@ -557,17 +557,17 @@ endif
     imap <F6> <Esc><C-w>w
     vmap <F6> >gv
 
-"Alt+F6  - goto next tab
+"Alt+F6 - goto next tab
     nmap <silent><M-F6>  :tabnext<Cr>
     imap <silent><M-F6>  <Esc>:tabnext<Cr>
     vmap <silent><M-F6>  <Esc>:tabnext<Cr>
 
-"Ctrl+F6  - split window horizontally
+"Ctrl+F6 - split window horizontally
     nmap <silent><C-F6> :call HSplit()<Cr>
     imap <silent><C-F6> <Esc>:call HSplit()<Cr>i
     vmap <silent><C-F6> <Esc>:call HSplit()<Cr>
 
-"Shift+F6  - split window vertically
+"Shift+F6 - split window vertically
     nmap <silent><S-F6> :call VSplit()<Cr>
     imap <silent><S-F6> <Esc>:call VSplit()<Cr>i
     vmap <silent><S-F6> <Esc>:call VSplit()<Cr>
@@ -577,7 +577,7 @@ endif
     imap <silent><F7> <Esc>:call SearchFor(1)<Cr>
     vmap <silent><F7> "+y:call SearchFor(2)<Cr>
 
-"Alt+F7  - Search in files
+"Alt+F7 - Search in files
     nmap <silent><M-F7> :call SearchInFiles(0)<Cr>
     vmap <silent><M-F7> <Esc>:call SearchInFiles(1)<Cr>
     imap <silent><M-F7> "+y:call SearchInFiles(2)<Cr>
@@ -725,7 +725,7 @@ else
 endif
     vmap <silent> <S-Tab> <gv
 
-"BackSpace  - go to edit-mode
+"BackSpace - go to edit-mode
     nmap <silent><BS> i<BS>
 
 "Insert - go to edit-mode
@@ -766,12 +766,12 @@ endif
     imap <silent><M-End> <Esc>:t.<Cr>i
     vmap <silent><M-End> yPi
 
-"Alt+Up  - move line up / move block up
+"Alt+Up - move line up / move block up
     nmap <M-Up> :m -2<Cr>i
     imap <M-Up> <Esc>:m -2<Cr>i
     vmap <M-Up> :m '<-2<CR>gv=gv
 
-"Ctrl+Up  - move to the prev current word / to upper case selection
+"Ctrl+Up - move to the prev current word / to upper case selection
     nmap <silent><C-Up> :let @a=@*<Cr>yiw:call search(@*,'b')<Cr>:let @*=@a<Cr>
     imap <silent><C-Up> <Esc><Right>:let @a=@*<Cr>yiw:call search( @*,'b')<Cr>:let @*=@a<Cr>i
     vmap <silent><C-Up> Ui
@@ -786,17 +786,17 @@ endif
     imap <M-Right> <End>
     vmap <M-Right> :s/^/ /g<Cr>gv
 
-"Alt+Down  - move line down / move block down
+"Alt+Down - move line down / move block down
     nmap <M-Down> :m +1<Cr>i
     imap <M-Down> <Esc>:m +1<Cr>i
     vmap <M-Down> :m '>+1<CR>gv=gv
 
-"Ctrl+Down  - move to the next current word / to lower-case selection
+"Ctrl+Down - move to the next current word / to lower-case selection
     nmap <silent><C-Down> :let @a=@*<Cr>yiw:call search(@*)<Cr>:let @*=@a<Cr>
     imap <silent><C-Down> <Esc><Right>:let @a=@*<Cr>yiw:call search( @* )<Cr>:let @*=@a<Cr>i
     vmap <silent><C-Down> ui
 
-"Alt+Home  - go to vertical-block-mode
+"Alt+Home - go to vertical-block-mode
     nmap <M-Home> <C-v>
     imap <M-Home> <Esc><C-v>
     vmap <M-Home> <Esc><C-v>
@@ -816,17 +816,17 @@ endif
     imap <M-PageUp> <Esc><C-w>p
     vmap <M-PageUp> <Esc><C-w>p
 
-"Ctrl+PgUp  - go to prev buffer
+"Ctrl+PgUp - go to prev buffer
     nmap <silent> <C-PageUp> :bp<Cr>
     imap <silent> <C-PageUp> <Esc>:bp<Cr>i
     vmap <silent> <C-PageUp> <Esc>:bp<Cr>
 
-"Alt+PgDn  - go to next view
+"Alt+PgDn - go to next view
     nmap <M-PageDown> <C-w>w
     imap <M-PageDown> <Esc><C-w>w
     vmap <M-PageDown> <Esc><C-w>w
 
-"Ctrl+PgDn  - go to next buffer
+"Ctrl+PgDn - go to next buffer
     nmap <silent> <C-PageDown> :bn<Cr>
     imap <silent> <C-PageDown> <Esc>:bn<Cr>i
     vmap <silent> <C-PageDown> <Esc>:bn<Cr>
@@ -849,22 +849,22 @@ endif
     nmap <S-PageDown> v<PageDown>
     imap <S-PageDown> <PageDown>
 
-"Ctrl+`  - show/hide menu-bar
+"Ctrl+` - show/hide menu-bar
     nmap <silent><C-`>  :call ShowHideMenubar()<Cr>
     imap <silent><C-`>  <Esc>:call ShowHideMenubar()<Cr>i
     vmap <silent><C-`>  <Esc>:call ShowHideMenubar()<Cr>v
 
-"Ctrl+0  set font size in to default
+"Ctrl+0 - set font size in to default
     nmap <silent><C-0>   :call ChangeFontSize(0)<Cr>
     imap <silent><C-0>   <Esc>:call ChangeFontSize(0)<Cr>i
     vmap <silent><C-0>   <Esc>:call ChangeFontSize(0)<Cr>v
 
-"Ctrl+-  decrease font size
+"Ctrl+- - decrease font size
     nmap <silent><C-->   :call ChangeFontSize(-1)<Cr>
     imap <silent><C-->   <Esc>:call ChangeFontSize(-1)<Cr>i
     vmap <silent><C-->   <Esc>:call ChangeFontSize(-1)<Cr>v
 
-"Ctrl+=  increase font size
+"Ctrl+= - increase font size
     nmap <silent><C-=>   :call ChangeFontSize(1)<Cr>
     imap <silent><C-=>   <Esc>:call ChangeFontSize(1)<Cr>i
     vmap <silent><C-=>   <Esc>:call ChangeFontSize(1)<Cr>v
@@ -874,12 +874,12 @@ endif
     imap <silent><C-\> <Esc>:set scrollbind<Cr>
     vmap <silent><C-\> <Esc>:set scrollbind<Cr>
 
-"Ctrl+]  - open all folders
+"Ctrl+] - open all folders
     nmap <silent><C-]> zR
     imap <silent><C-]> <Esc>zRi
     vmap <silent><C-]> <Esc>zRgv
 
-"Ctrl+A  - select all
+"Ctrl+A - select all
     nmap <C-a> ggVG
     vmap <C-a> <Esc>ggVG
     imap <C-a> <Esc>ggVG
@@ -894,22 +894,22 @@ endif
     imap <C-c> <Esc>yyi
     vmap <C-c> "+yi
 
-"Ctrl+D  - redo
+"Ctrl+D - redo
     nmap <silent><C-d> :redo<Cr>
     imap <silent><C-d> <Esc>:redo<Cr>i
     vmap <silent><C-d> <Esc>:redo<Cr>gv
 
-"Ctrl+E  - compile
+"Ctrl+E - compile
     nmap <silent><C-E>  :call Complile()<Cr>
     imap <silent><C-E>  <Esc>:call Complile()<Cr>
     vmap <silent><C-E>  <Esc>:call Complile()<Cr>
 
-"Ctrl+F  - search
+"Ctrl+F - search
     nmap <C-f> :call SearchFor(0)<Cr>
     imap <C-f> <Esc>:call SearchFor(1)<Cr>
     vmap <C-f> "+y:call SearchFor(2)<Cr>
 
-"Ctrl+G  - goto line number
+"Ctrl+G - goto line number
     nmap <silent><C-g> :call GoToLine(0)<Cr>
     imap <silent><C-g> <Esc>:call GoToLine(1)<Cr>
     vmap <silent><C-g> <Esc>:call GoToLine(2)<Cr>
@@ -919,17 +919,17 @@ endif
     imap <silent><C-h> <Esc>:call SearchAndReplace(1)<Cr>
     vmap <silent><C-h> "+y:call SearchAndReplace(2)<Cr>
 
-"Ctrl+J  - left
+"Ctrl+J - left
     nmap <C-j> <Left>
     imap <C-j> <Left>
     vmap <C-j> <Left>
 
-"Ctrl+K  - down
+"Ctrl+K - down
     nmap <C-k> <Down>
     imap <C-k> <Down>
     vmap <C-k> <Down>
 
-"Ctrl+L  - right
+"Ctrl+L - right
     nmap <C-l> <Right>
     imap <C-l> <Right>
     vmap <C-l> <Right>
@@ -939,22 +939,22 @@ endif
     imap <silent><C-N> <Esc>:tabnew<Cr>
     vmap <silent><C-N> <Esc>:tabnew<Cr>
 
-"Ctrl+O  - Open file
+"Ctrl+O - Open file
     nmap <silent><C-O>  :call OpenFile()<Cr>
     imap <silent><C-O>  <Esc>:call OpenFile()<Cr>
     vmap <silent><C-O>  <Esc>:call OpenFile()<Cr>
 
-"Ctrl+P  - close all folders
+"Ctrl+P - close all folders
     nmap <silent><C-P> zM
     imap <silent><C-P> <Esc>zMi
     vmap <silent><C-P> <Esc>zMgv
 
-"Ctrl+Q  - Copy file to history
+"Ctrl+Q - Copy file to history
     nmap <silent><C-Q>  :call SaveFile(0)<Cr> :!CopyToHistory.bat %<Cr>
     imap <silent><C-Q>  <Esc>:call SaveFile(0)<Cr> :!CopyToHistory.bat %<Cr>i
     vmap <silent><C-Q>  <Esc>:call SaveFile(0)<Cr> :!CopyToHistory.bat %<Cr>i
 
-"Ctrl+R  - show/hide bottem panel
+"Ctrl+R - show/hide bottem panel
     nmap <silent><C-R>  :call ShowHidePanel()<Cr>
     imap <silent><C-R>  <Esc>:call ShowHidePanel()<Cr>i
     vmap <silent><C-R>  <Esc>:call ShowHidePanel()<Cr>gv
@@ -969,28 +969,28 @@ endif
     imap <silent><C-T> <Esc>:enew<Cr>
     vmap <silent><C-T> <Esc>:enew<Cr>
 
-"Ctrl+U  - up
-    nmap  <C-u> <Up>
-    imap  <C-u> <Up>
-    vmap  <C-u> <Up>
+"Ctrl+U - up
+    nmap <C-u> <Up>
+    imap <C-u> <Up>
+    vmap <C-u> <Up>
 
-"Ctrl+V  paste
+"Ctrl+V - paste
 "    nmap <C-v> pi<Right>
     imap <C-v> <Esc>"+gPi
     vmap <C-v> <Del><C-v>
     cmap <C-v> <C-r>"
 
-"Ctrl+X  - cut
+"Ctrl+X - cut
     nmap <C-x> ddi
     imap <C-x> <Esc>ddi
     vmap <C-x> "+xi
 
-"Ctrl+Y  - delete current line
+"Ctrl+Y - delete current line
     nmap <silent><C-Y> :let @a=@*<Cr>dd:let @*=@a<Cr>i
     imap <silent><C-Y> <Esc>:let @a=@*<Cr>dd:let @*=@a<Cr>i
     vmap <silent><C-Y> "_di
 
-"Ctrl+Z  - undo
+"Ctrl+Z - undo
     nmap <silent><C-z> u
     imap <silent><C-z> <Esc>ui
     vmap <silent><C-z> <Esc>ugv
