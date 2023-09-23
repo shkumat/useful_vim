@@ -1,4 +1,4 @@
-" -----------------------------------------------------------------------------
+" -------------------------------------------------------------------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -28,7 +28,6 @@ set clipboard=unnamed
 "set foldmethod=manual
 "set foldmethod=indent
 set foldmethod=syntax
-"set fileformat=dos
 set fileformats=dos,unix,mac
 set nofoldenable
 
@@ -131,7 +130,7 @@ function ShowHideMenubar()
         let @y=0
     else
         set guioptions +=m
-        "set guioptions +=T
+"        set guioptions +=T
         let @y=1
     endif
 endfunc
@@ -184,7 +183,7 @@ function SearchFor(mode)
 endfunc
 
 function SearchInFiles(mode)
-    let @a= @v
+    let @a = @v
     if a:mode == 2
         let @a = trim( @* )
     endif
@@ -275,7 +274,8 @@ function JoinAllLines()
 endfunc
 
 function Insert(mode)
-    let @a = input('String to insert : ')
+    let @a = trim( @* )
+    let @a = input('String to insert : ' , @a)
     if  @a < ' '
         finish
     endif
@@ -433,7 +433,7 @@ endfunc
 
 if has("gui_running")
     set guioptions-=r
-    "set showtabline=2
+"    set showtabline=2
     set guifont=Consolas:h11
     set lines=40 columns=120
     call ShowHideMenubar()
