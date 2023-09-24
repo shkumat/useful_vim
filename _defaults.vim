@@ -1,15 +1,13 @@
-" -------------------------------------------------------------------
+" -------------------------------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
 hi Visual ctermbg=darkgrey ctermfg=NONE guibg=#555555 guifg=NONE
-
 language en_US
 language time en_US
 language ctype en_US
 language messages en_US
 set langmenu=en_US
-
 set number
 set nowrap
 set nopaste
@@ -23,14 +21,11 @@ set ignorecase
 set wildoptions=pum
 set clipboard=unnamed
 "set virtualedit=onemore
-"autocmd InsertLeave * :normal! `^
-
 "set foldmethod=manual
 "set foldmethod=indent
 set foldmethod=syntax
 set fileformats=dos,unix,mac
 set nofoldenable
-
 "set expandtab ts=4 sw=4 ai
 "set autoindent
 set smartindent
@@ -39,12 +34,18 @@ set shiftwidth=4
 set tabstop=4
 set expandtab
 
-let @s=''   "line of the block to select
-let @v=''   "string to search
-let @w=0    "is comparasion mode ON
-let @x=11   "font size
-let @y=1    "is menu-bar hidden
-let @z=0    "is output-bar open
+let @s = ''     "line of the block to select
+let @u = 1      "search from the beginning of the file
+let @v = ''     "string to search
+let @w = 0      "is comparasion mode ON
+let @x = 11     "font size
+let @y = 1      "is menu-bar hidden
+let @z = 0      "is output-bar open
+
+function ClearOutput()
+    echon "\r\r"
+    echon ''
+endfunc
 
 function RunScript()
     :call SaveFile(0)
@@ -76,8 +77,8 @@ function VSplit()
 endfunc
 
 function Complile()
-    :call SaveFile(0)
-    :set makeprg=compile.bat\ %
+    call SaveFile(0)
+    set makeprg=compile.bat\ %
     :make
     :copen
     let @z=1
@@ -88,9 +89,8 @@ function Calculate()
     try
         let @a= eval ( @a )
     catch
-        let @a = ".."
+        echo "..."
     endtry
-    echo @a
 endfunc
 
 function CompareViews()
@@ -114,7 +114,7 @@ function ChangeFontSize(direction)
 endfunc
 
 function ShowHidePanel()
-    if (@z==1)
+    if @z == 1
         :cclose
         let @z=0
     else
@@ -124,13 +124,12 @@ function ShowHidePanel()
 endfunc
 
 function ShowHideMenubar()
-    if (@y==1)
+    if @y == 1
         set guioptions -=m
         set guioptions -=T
         let @y=0
     else
         set guioptions +=m
-"        set guioptions +=T
         let @y=1
     endif
 endfunc
@@ -142,7 +141,6 @@ function Exit(mode)
         try
             :x
         catch
-            :echo ".."
         endtry
     endif
     :q!
@@ -173,10 +171,14 @@ function SearchFor(mode)
     if a:mode == 2
         let @a = trim( @* )
     endif
-    let @v = input('Search for : ', @a)
-    if @v > ''
-        call search( @v, 'z' )
+    if @u == 1
+        :1
     endif
+    let @v = input( 'Search for : ', @a )
+    if @v > ''
+        call search( @v, 'c' )
+    endif
+    call ClearOutput()
     if a:mode == 1
         call feedkeys('i')
     endif
@@ -187,17 +189,17 @@ function SearchInFiles(mode)
     if a:mode == 2
         let @a = trim( @* )
     endif
-    let @v = input('Search for : ', @a)
+    let @v = input( 'Search for : ', @a )
     if @v > ''
         let @a = ':vimgrep "' . @v . '" ' . input('In files : ','**/*.*')
         try
             execute @a
         catch
-            echo '...'
         endtry
         :copen
         let @z=1
     endif
+    call ClearOutput()
     if a:mode == 1
         call feedkeys('i')
     endif
@@ -211,7 +213,6 @@ function GotoMessage(mode)
             :cn
         endif
     catch
-        echo '...'
     endtry
 endfunc
 
@@ -220,6 +221,7 @@ function GoToLine(mode)
     if @a > 0
         @aG
     endif
+    call ClearOutput()
     if a:mode == 1
         :call feedkeys('i')
     endif
@@ -233,17 +235,23 @@ function SearchAndReplace(mode)
     if a:mode == 2
         let @a = @*
     endif
-    let @a = input('Search for : ',@a)
+    let @a = input('Search for : ', @a )
     if @a > ''
-        let @a = ':%s/' . @a . '/' . input('Replace with : ', @a ) . '/gc'
-        try
-            execute @a
-        catch
-            echo "..."
-        endtry
-        if a:mode == 1
-            call feedkeys('i')
+        let @b = input('Replace with : ', @a )
+        if @b > ''
+            try
+                if @u == 1
+                    execute ':%s/' . @a . '/' . @b . '/gc'
+                else
+                    execute ':,$s/' . @a . '/' . @b . '/gc'
+                endif
+            catch
+            endtry
         endif
+    endif
+    call ClearOutput()
+    if a:mode == 1
+        call feedkeys('i')
     endif
 endfunc
 
@@ -252,10 +260,9 @@ function SplitCurrentLine()
     let @a = ':.s/' . @a . '/\r/g'
     try
         execute @a
-        echo ' - done'
     catch
-        echo '...'
     endtry
+    call ClearOutput()
 endfunc
 
 function JoinAllLines()
@@ -267,24 +274,22 @@ function JoinAllLines()
     endif
     try
         execute @a
-        echo ' - done'
     catch
-        echo '...'
     endtry
+    call ClearOutput()
 endfunc
 
 function Insert(mode)
     let @a = trim( @* )
     let @a = input('String to insert : ' , @a)
-    if  @a < ' '
-        finish
+    if  @a > ''
+        if a:mode > 0
+            execute(':%norm A' . @a)
+        else
+            execute(':%s!^!' . @a . '!')
+        endif
     endif
-    if a:mode > 0
-        execute(':%norm A' . @a)
-    else
-"        execute(':%norm I' . @a )
-        execute(':%s!^!' . @a . '!')
-    endif
+    call ClearOutput()
     call feedkeys('i')
 endfunc
 
@@ -295,7 +300,6 @@ function SaveSelection()
         try
             execute( @a )
         catch
-            echo '...'
         endtry
     endif
     call feedkeys('g')
@@ -307,6 +311,7 @@ function SaveFileAs(mode)
         :browse confirm save
     else
         execute(':w ' . input('Save file as : ') )
+        call ClearOutput()
     endif
     if a:mode == 1
         if getcurpos()[2]>1
@@ -329,28 +334,23 @@ function SaveFile(mode)
         call feedkeys('g')
         call feedkeys('v')
     endif
-
 endfunc
 
 function DeleteTrailingSpaces()
     try
         :%s/\s\+$//g
-        let @a=''
     catch
-        let @a='...'
     endtry
-    echo @a
+    call ClearOutput()
 endfunc
 
 function TabsToSpaces()
     let @a = ":%s/\t/    /g"
     try
         execute( @a )
-        let @a=''
     catch
-        let @a='...'
     endtry
-    :echo @a
+    call ClearOutput()
 endfunc
 
 function Turn_CSV_into_SQL()
@@ -360,26 +360,25 @@ function Turn_CSV_into_SQL()
         try
             execute( @a )
         catch
-            :echo '...'
         endtry
         :%norm I,('
         :%norm A')
     endif
+    call ClearOutput()
 endfunc
 
 function SelectBlock(mode)
     if @s > ''
         try
-            :call feedkeys('V')
+            call feedkeys('V')
             let num = 0
             while num < strchars( @s )
-                :call feedkeys( @s[ num ] )
+                call feedkeys( @s[ num ] )
                 let  num += 1
             endwhile
             call feedkeys('g')
             call feedkeys('g')
         catch
-            echo "..."
         endtry
         let @s=''
     else
@@ -433,7 +432,6 @@ endfunc
 
 if has("gui_running")
     set guioptions-=r
-"    set showtabline=2
     set guifont=Consolas:h11
     set lines=40 columns=120
     call ShowHideMenubar()
@@ -544,9 +542,9 @@ endif
     menu Transformations.Del_trail_spaces   :call DeleteTrailingSpaces()<Cr>
     menu Transformations.Add_before_begins  :call Insert(0)<Cr>
     menu Transformations.Add_after_ends     :call Insert(1)<Cr>
-    menu Transformations.Split_cur_line     :call SplitCurrentLine()<Cr>
-    menu Transformations.Join_all_lines     :call JoinAllLines()<Cr>
     menu Transformations.Tabs_to_spaces     :call TabsToSpaces()<Cr>
+    menu Transformations.Join_all_lines     :call JoinAllLines()<Cr>
+    menu Transformations.Split_cur_line     :call SplitCurrentLine()<Cr>
     menu Transformations.CSV_into_SQL       :call Turn_CSV_into_SQL()<Cr>
     nmap <silent><S-F5>     :emenu Transformations.<Tab>
     imap <silent><S-F5>     <Esc>:emenu Transformations.<Tab>
@@ -588,14 +586,16 @@ endif
     vmap <silent><C-F7> "+y:call SearchAndReplace(2)<Cr>
 
 "Shift+F7 - Menu 'Settings'
-    menu Settings.IgnoreCase    :set ignorecase<Cr>:echo ''<Cr>
-    menu Settings.NoIgnorecase  :set noignorecase<Cr>:echo ''<Cr>
-    menu Settings.Fold_Syntax   :set foldmethod=syntax<Cr>:echo ''<Cr>
-    menu Settings.Fold_Manual   :set foldmethod=manual<Cr>:echo ''<Cr>
-    menu Settings.Fold_Indent   :set foldmethod=indent<Cr>:echo ''<Cr>
-    nmap <silent><S-F7>         :emenu Settings.<Tab>
-    imap <silent><S-F7>         <Esc>:emenu Settings.<Tab>
-    vmap <silent><S-F7>         <Esc>:emenu Settings.<Tab>
+    menu Settings.Search_From_1  :let @u=1<Cr>:echo ''<Cr>
+    menu Settings.Search_Further :let @u=0<Cr>:echo ''<Cr>
+    menu Settings.Ignore_Case    :set ignorecase<Cr>:echo ''<Cr>
+    menu Settings.No_Ignore_Case :set noignorecase<Cr>:echo ''<Cr>
+    menu Settings.Fold_Syntax    :set foldmethod=syntax<Cr>:echo ''<Cr>
+    menu Settings.Fold_Manual    :set foldmethod=manual<Cr>:echo ''<Cr>
+    menu Settings.Fold_Indent    :set foldmethod=indent<Cr>:echo ''<Cr>
+    nmap <silent><S-F7>     :emenu Settings.<Tab>
+    imap <silent><S-F7>     <Esc>:emenu Settings.<Tab>
+    vmap <silent><S-F7>     <Esc>:emenu Settings.<Tab>
 
 "F8  - go to next difference / multi-cursor insert / calculate selected expression
     nmap <silent><F8> ]c
