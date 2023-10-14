@@ -1,4 +1,4 @@
-" -------------------------------
+" -----------------------------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -356,7 +356,7 @@ endfunc
 function Turn_CSV_into_SQL()
     let @a = input('Delimiter : ','\t')
     if  @a > ' '
-        let @a= ":%s/" . @a . "/;/g"
+        let @a= ":%s/" . @a . "/','/g"
         try
             execute( @a )
         catch
