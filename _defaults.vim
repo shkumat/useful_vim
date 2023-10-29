@@ -1,4 +1,4 @@
-" -----------------------------
+" -------------------------------------------------------------
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -89,7 +89,7 @@ function Calculate()
     try
         let @a= eval ( @a )
     catch
-        echo "..."
+        echo '...'
     endtry
 endfunc
 
@@ -476,18 +476,19 @@ endif
     imap <S-F2> <Esc>:call SaveFileAs(1)<Cr>
     vmap <S-F2> <Esc>:call SaveSelection()<Cr>
 
-"F3  - Search next / move selected block left
+"F3  - Search next / cut selected block
     nmap <silent><F3> :call SearchNext(0)<Cr>
     imap <silent><F3> <Esc><Right>:call SearchNext(1)<Cr>
-    vmap <silent><F3> :s/^ //g<Cr>gv
+    vmap <F3> "+xi
 
-"Alt+F3 - Menu 'Clear'
-    menu Clear.Local_bookmarks  :delmarks!<Cr>:echo ''<Cr>
-    menu Clear.Global_bookmarks :delmarks A-Z0-9<Cr>:echo ''<Cr>
-    menu Clear.All_buffers      :%bd<Cr>:echo ''<Cr>
-    nmap <silent><M-F3>     :emenu Clear.<TAB>
-    imap <silent><M-F3>     <Esc>:emenu Clear.<TAB>
-    vmap <silent><M-F3>     <Esc>:emenu Clear.<TAB>
+"Alt+F3 - Menu 'Buffer'
+    menu Buffer.Print_All          :ls<Cr>
+    menu Buffer.Close_All          :%bd<Cr>:echo ''<Cr>
+    menu Buffer.Clear_Local_BM     :delmarks!<Cr>:echo ''<Cr>
+    menu Buffer.Clear_Global_BMs   :delmarks A-Z0-9<Cr>:echo ''<Cr>
+    nmap <silent><M-F3>    :emenu Buffer.<TAB>
+    imap <silent><M-F3>    <Esc>:emenu Buffer.<TAB>
+    vmap <silent><M-F3>    <Esc>:emenu Buffer.<TAB>
 
 "Ctrl+F3 - Close current tab
     nmap <silent><C-F3> :tabclose<Cr>
@@ -499,10 +500,10 @@ endif
     imap <silent><S-F3> <Esc>:call SearchPrev(1)<Cr>
     vmap <silent><S-F3> <Esc>:call SearchPrev(1)<Cr>
 
-"F4  - goto next message / move selected block right
+"F4  - goto next message / copy selected block
     nmap <silent><F4> :call GotoMessage(0)<Cr>
     imap <silent><F4> <Esc>GotoMessage(0)<Cr>i
-    vmap <silent><F4> :s/^/ /g<Cr>gv
+    vmap <F4> "+yi
 
 "Alt+F4  - exit without saving
     nmap <silent><M-F4> :call Exit(0)<Cr>
@@ -519,16 +520,22 @@ endif
     imap <silent><S-F4> <Esc>GotoMessage(1)<Cr>i
     vmap <silent><S-F4> <Esc>GotoMessage(1)<Cr>
 
-"F5 - show list of buffers
-    nmap <silent><F5> :ls<Cr>
-    imap <silent><F5> <Esc>:ls<Cr>
-    vmap <silent><F5> <Esc>:ls<Cr>
+"F5 - paste
+    nmap <F5> pi<Right>
+    imap <F5> <Esc>"+gPi
+    vmap <F5> <Del><C-v>
+    cmap <F5> <C-r>"
 
 "Alt+F5 - Menu 'Features'
     menu Features.Histosy       :bro ol<Cr>
     menu Features.Text_to_HEX   :%!xxd<Cr>:echo ''<Cr>
     menu Features.HEX_to_Text   :%!xxd -r<Cr>:echo ''<Cr>
     menu Features.Copy_FilePath :let @* = expand('%:p')<Cr>:echo ''<Cr>
+    menu Features.To_Utf8       :w ++enc=utf8   ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Win1251    :w ++enc=cp1251 ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Cp866      :w ++enc=cp866  ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Koi8-r     :w ++enc=koi8-r ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Koi8-u     :w ++enc=koi8-u ++ff=dos<Cr>:q<Cr>
     nmap <silent><M-F5>         :emenu Features.<TAB>
     imap <silent><M-F5>         <Esc>:emenu Features.<TAB>
     vmap <silent><M-F5>         <Esc>:emenu Features.<TAB>
@@ -553,7 +560,7 @@ endif
 "F6  - goto next view
     nmap <F6> <C-w>w
     imap <F6> <Esc><C-w>w
-    vmap <F6> >gv
+    vmap <F6> <Esc><C-w>w
 
 "Alt+F6 - goto next tab
     nmap <silent><M-F6>  :tabnext<Cr>
@@ -570,10 +577,10 @@ endif
     imap <silent><S-F6> <Esc>:call VSplit()<Cr>i
     vmap <silent><S-F6> <Esc>:call VSplit()<Cr>
 
-"F7  - go to prev difference / search
-    nmap <silent><F7> [c
-    imap <silent><F7> <Esc>:call SearchFor(1)<Cr>
-    vmap <silent><F7> "+y:call SearchFor(2)<Cr>
+"F7 - search
+    nmap <F7> :call SearchFor(0)<Cr>
+    imap <F7> <Esc>:call SearchFor(1)<Cr>
+    vmap <F7> "+y:call SearchFor(2)<Cr>
 
 "Alt+F7 - Search in files
     nmap <silent><M-F7> :call SearchInFiles(0)<Cr>
@@ -607,25 +614,20 @@ endif
     imap <silent><M-F8>  <Esc>:call CompareViews()<Cr>
     vmap <silent><M-F8>  <Esc>:call CompareViews()<Cr>
 
-"Shift+F8 - Menu 'Encoding'
-    menu Encoding.windows  :e ++enc=cp1251 ++ff=dos<Cr>:echo ''<Cr>
-    menu Encoding.utf-8    :e ++enc=utf8   ++ff=dos<Cr>:echo ''<Cr>
-    menu Encoding.cp866    :e ++enc=cp866  ++ff=dos<Cr>:echo ''<Cr>
-    menu Encoding.koi8-r   :e ++enc=koi8-r ++ff=dos<Cr>:echo ''<Cr>
-    menu Encoding.koi8-u   :e ++enc=koi8-u ++ff=dos<Cr>:echo ''<Cr>
-    nmap <silent><S-F8>    :emenu Encoding.<TAB>
-    imap <silent><S-F8>    <Exc>:emenu Encoding.<TAB>
-    vmap <silent><S-F8>    <Exc>:emenu Encoding.<TAB>
+"Shift+F8 - go to prev difference
+    nmap <silent><S-F8> [c
+    imap <silent><S-F8> <Esc>[c
+    vmap <silent><S-F8> <Esc>[c
 
-"Ctrl+F8 - Menu 'Convert to'
-    menu ConvertTo.windows :w ++enc=cp1251 ++ff=dos<Cr>:echo ''<Cr>
-    menu ConvertTo.utf-8   :w ++enc=utf8   ++ff=dos<Cr>:echo ''<Cr>
-    menu ConvertTo.cp866   :w ++enc=cp866  ++ff=dos<Cr>:echo ''<Cr>
-    menu ConvertTo.koi8-r  :w ++enc=koi8-r ++ff=dos<Cr>:echo ''<Cr>
-    menu ConvertTo.koi8-u  :w ++enc=koi8-u ++ff=dos<Cr>:echo ''<Cr>
-    nmap <silent><C-F8>    :emenu ConvertTo.<TAB>
-    imap <silent><C-F8>    <Esc>:emenu ConvertTo.<TAB>
-    vmap <silent><C-F8>    <Esc>:emenu ConvertTo.<TAB>
+"Ctrl+F8 - Menu 'Encoding'
+    menu Encoding.Utf8     :e ++enc=utf8   ++ff=dos<Cr>:echo ''<Cr>
+    menu Encoding.Win1251  :e ++enc=cp1251 ++ff=dos<Cr>:echo ''<Cr>
+    menu Encoding.Cp866    :e ++enc=cp866  ++ff=dos<Cr>:echo ''<Cr>
+    menu Encoding.Koi8-r   :e ++enc=koi8-r ++ff=dos<Cr>:echo ''<Cr>
+    menu Encoding.Koi8-u   :e ++enc=koi8-u ++ff=dos<Cr>:echo ''<Cr>
+    nmap <silent><C-F8>    :emenu Encoding.<TAB>
+    imap <silent><C-F8>    <Exc>:emenu Encoding.<TAB>
+    vmap <silent><C-F8>    <Exc>:emenu Encoding.<TAB>
 
 "F9  - go to local bookmark N1
     nmap <F9> `a
@@ -796,10 +798,10 @@ endif
     imap <silent><C-Down> <Esc><Right>:let @a=@*<Cr>yiw:call search( @* )<Cr>:let @*=@a<Cr>i
     vmap <silent><C-Down> ui
 
-"Alt+Home - go to vertical-block-mode
-    nmap <M-Home> <C-v>
-    imap <M-Home> <Esc><C-v>
-    vmap <M-Home> <Esc><C-v>
+"Alt+Home - select block
+    nmap <silent><M-Home> :call SelectBlock(0)<Cr>
+    imap <silent><M-Home> <Esc>:call SelectBlock(1)<Cr>
+    vmap <silent><M-Home> <Esc>:call SelectBlock(0)<Cr>
 
 "Shift+Home
     nmap <S-Home> v<Home>
@@ -880,24 +882,24 @@ endif
     vmap <silent><C-]> <Esc>zRgv
 
 "Ctrl+A - select all
-    nmap <C-a> ggVG
-    vmap <C-a> <Esc>ggVG
-    imap <C-a> <Esc>ggVG
+    nmap <C-A> ggVG
+    vmap <C-A> <Esc>ggVG
+    imap <C-A> <Esc>ggVG
 
-"Ctrl+B - select block
-    nmap <silent><C-B> :call SelectBlock(0)<Cr>
-    imap <silent><C-B> <Esc>:call SelectBlock(1)<Cr>
-    vmap <silent><C-B> <Esc>:call SelectBlock(0)<Cr>
+"Ctrl+B - go to vertical-block-mode
+    nmap <C-B> <C-v>
+    imap <C-B> <Esc><C-v>
+    vmap <C-B> <Esc><C-v>
 
 "Ctrl+C - copy
-    nmap <C-c> yy
-    imap <C-c> <Esc>yyi
-    vmap <C-c> "+yi
+    nmap <C-C> yy
+    imap <C-C> <Esc>yyi
+    vmap <C-C> "+yi
 
 "Ctrl+D - redo
-    nmap <silent><C-d> :redo<Cr>
-    imap <silent><C-d> <Esc>:redo<Cr>i
-    vmap <silent><C-d> <Esc>:redo<Cr>gv
+    nmap <silent><C-D> :redo<Cr>
+    imap <silent><C-D> <Esc>:redo<Cr>i
+    vmap <silent><C-D> <Esc>:redo<Cr>gv
 
 "Ctrl+E - compile
     nmap <silent><C-E>  :call Complile()<Cr>
@@ -905,34 +907,34 @@ endif
     vmap <silent><C-E>  <Esc>:call Complile()<Cr>
 
 "Ctrl+F - search
-    nmap <C-f> :call SearchFor(0)<Cr>
-    imap <C-f> <Esc>:call SearchFor(1)<Cr>
-    vmap <C-f> "+y:call SearchFor(2)<Cr>
+    nmap <C-F> :call SearchFor(0)<Cr>
+    imap <C-F> <Esc>:call SearchFor(1)<Cr>
+    vmap <C-F> "+y:call SearchFor(2)<Cr>
 
 "Ctrl+G - goto line number
-    nmap <silent><C-g> :call GoToLine(0)<Cr>
-    imap <silent><C-g> <Esc>:call GoToLine(1)<Cr>
-    vmap <silent><C-g> <Esc>:call GoToLine(2)<Cr>
+    nmap <silent><C-G> :call GoToLine(0)<Cr>
+    imap <silent><C-G> <Esc>:call GoToLine(1)<Cr>
+    vmap <silent><C-G> <Esc>:call GoToLine(2)<Cr>
 
 "Ctrl+H - Search and Replace
-    nmap <silent><C-h> :call SearchAndReplace(0)<Cr>
-    imap <silent><C-h> <Esc>:call SearchAndReplace(1)<Cr>
-    vmap <silent><C-h> "+y:call SearchAndReplace(2)<Cr>
+    nmap <silent><C-H> :call SearchAndReplace(0)<Cr>
+    imap <silent><C-H> <Esc>:call SearchAndReplace(1)<Cr>
+    vmap <silent><C-H> "+y:call SearchAndReplace(2)<Cr>
 
 "Ctrl+J - left
-    nmap <C-j> <Left>
-    imap <C-j> <Left>
-    vmap <C-j> <Left>
+    nmap <C-J> <Left>
+    imap <C-J> <Left>
+    vmap <C-J> <Left>
 
 "Ctrl+K - down
-    nmap <C-k> <Down>
-    imap <C-k> <Down>
-    vmap <C-k> <Down>
+    nmap <C-K> <Down>
+    imap <C-K> <Down>
+    vmap <C-K> <Down>
 
 "Ctrl+L - right
-    nmap <C-l> <Right>
-    imap <C-l> <Right>
-    vmap <C-l> <Right>
+    nmap <C-L> <Right>
+    imap <C-L> <Right>
+    vmap <C-L> <Right>
 
 "Ctrl+N - New file
     nmap <silent><C-N> :tabnew<CR>
@@ -970,20 +972,19 @@ endif
     vmap <silent><C-T> <Esc>:enew<Cr>
 
 "Ctrl+U - up
-    nmap <C-u> <Up>
-    imap <C-u> <Up>
-    vmap <C-u> <Up>
+    nmap <C-U> <Up>
+    imap <C-U> <Up>
+    vmap <C-U> <Up>
 
 "Ctrl+V - paste
-"    nmap <C-v> pi<Right>
-    imap <C-v> <Esc>"+gPi
-    vmap <C-v> <Del><C-v>
-    cmap <C-v> <C-r>"
+    imap <C-V> <Esc>"+gPi
+    vmap <C-V> <Del><C-v>
+    cmap <C-V> <C-r>"
 
 "Ctrl+X - cut
-    nmap <C-x> ddi
-    imap <C-x> <Esc>ddi
-    vmap <C-x> "+xi
+    nmap <C-X> ddi
+    imap <C-X> <Esc>ddi
+    vmap <C-X> "+xi
 
 "Ctrl+Y - delete current line
     nmap <silent><C-Y> :let @a=@*<Cr>dd:let @*=@a<Cr>i
@@ -991,9 +992,9 @@ endif
     vmap <silent><C-Y> "_di
 
 "Ctrl+Z - undo
-    nmap <silent><C-z> u
-    imap <silent><C-z> <Esc>ui
-    vmap <silent><C-z> <Esc>ugv
+    nmap <silent><C-Z> u
+    imap <silent><C-Z> <Esc>ui
+    vmap <silent><C-Z> <Esc>ugv
 
 "Space - go to command-mode
     nmap <Space> :
