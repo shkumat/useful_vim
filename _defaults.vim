@@ -1,15 +1,16 @@
-" ------------------------------------
-" https://vimhelp.org/builtin.txt.html
+" ------------------------------------------------
+"             https://vimhelp.org/builtin.txt.html
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
 hi Visual ctermbg=darkgrey ctermfg=NONE guibg=#555555 guifg=NONE
+
 language en_US
 language time en_US
 language ctype en_US
 language messages en_US
-
 set langmenu=en_US
+
 set number
 set nowrap
 set nopaste
@@ -38,6 +39,7 @@ set tabstop=4
 set expandtab
 
 let @s = ''     "line of the block to select
+let @t = ''     "collapse/unCollapse switcher
 let @u = 1      "search from the beginning of the file
 let @v = ''     "string to search
 let @w = 0      "is comparasion mode ON
@@ -92,8 +94,9 @@ function Calculate()
     try
         let @a= eval ( @a )
     catch
-        echo '...'
+        let @a= '...'
     endtry
+    echo @a
 endfunc
 
 function CompareViews()
@@ -107,10 +110,10 @@ function CompareViews()
 endfunc
 
 function ChangeFontSize(direction)
-    if  a:direction==0
-        let @x=11
+    if a:direction==0
+        let @x = 11
     else
-        let @x=@x+a:direction
+        let @x = @x+a:direction
     endif
     let @a = 'set guifont=Consolas:h' . @x
     execute @a
@@ -356,6 +359,18 @@ function TabsToSpaces()
     call ClearOutput()
 endfunc
 
+function Collapse()
+    if @t > ''
+        call feedkeys('z')
+        call feedkeys('R')
+        let @t=''
+    else
+        call feedkeys('z')
+        call feedkeys('M')
+        let @t='*'
+    endif
+endfunc
+
 function Turn_CSV_into_SQL()
     let @a = input('Delimiter : ','\t')
     if  @a > ' '
@@ -373,10 +388,19 @@ endfunc
 function SelectBlock(mode)
     if @s > ''
         try
-            call feedkeys('V')
+            let @a=getcurpos()[1]
             let num = 0
             while num < strchars( @s )
                 call feedkeys( @s[ num ] )
+                let  num += 1
+            endwhile
+            call feedkeys('g')
+            call feedkeys('g')
+
+            call feedkeys('V')
+            let num = 0
+            while num < strchars( @a )
+                call feedkeys( @a[ num ] )
                 let  num += 1
             endwhile
             call feedkeys('g')
@@ -484,15 +508,16 @@ endif
     imap <silent><F3> <Esc><Right>:call SearchNext(1)<Cr>
     vmap <F3> "+xi
 
-"Alt+F3 - Menu 'Service'
-    menu Service.Print_All_Buffers   :ls<Cr>
-    menu Service.Clear_Search_HiLit  :let @/=''<Cr>:echo ""<Cr>
-    menu Service.Clear_Local_BMs     :delmarks!<Cr>:echo ""<Cr>
-    menu Service.Clear_Global_BMs    :delmarks A-Z0-9<Cr>:echo ""<Cr>
-    menu Service.Close_All           :%bd<Cr>:echo ''<Cr>
-    nmap <silent><M-F3>  :emenu Service.<TAB>
-    imap <silent><M-F3>  <Esc>:emenu Service.<TAB>
-    vmap <silent><M-F3>  <Esc>:emenu Service.<TAB>
+"Alt+F3 - Menu 'Cleaning'
+    menu Cleaning.Clear_High-Lights   :let @/=''<Cr>:echo ''<Cr>
+    menu Cleaning.Clear_Global_BMs    :delmarks A-Z0-9<Cr>:echo ''<Cr>
+    menu Cleaning.Clear_Local_BMs     :delmarks!<Cr>:echo ''<Cr>
+    menu Cleaning.Close_All_Buff      :%bd<Cr>:echo ''<Cr>
+    menu Cleaning.Copy_FilePath       :let @* = expand('%:p')<Cr>:echo ''<Cr>
+    menu Cleaning.Show_Histosy        :bro ol<Cr>
+    nmap <silent><M-F3>  :emenu Cleaning.<TAB>
+    imap <silent><M-F3>  <Esc>:emenu Cleaning.<TAB>
+    vmap <silent><M-F3>  <Esc>:emenu Cleaning.<TAB>
 
 "Ctrl+F3 - close current tab
     nmap <silent><C-F3> :tabclose<Cr>
@@ -531,15 +556,15 @@ endif
     cmap <F5> <C-r>"
 
 "Alt+F5 - Menu 'Features'
-    menu Features.Histosy       :bro ol<Cr>
-    menu Features.Text_to_HEX   :%!xxd<Cr>:echo ''<Cr>
-    menu Features.HEX_to_Text   :%!xxd -r<Cr>:echo ''<Cr>
-    menu Features.Copy_FilePath :let @* = expand('%:p')<Cr>:echo ''<Cr>
-    menu Features.To_Utf8       :w ++enc=utf8   ++ff=dos<Cr>:q<Cr>
-    menu Features.To_Win1251    :w ++enc=cp1251 ++ff=dos<Cr>:q<Cr>
-    menu Features.To_Cp866      :w ++enc=cp866  ++ff=dos<Cr>:q<Cr>
-    menu Features.To_Koi8-r     :w ++enc=koi8-r ++ff=dos<Cr>:q<Cr>
-    menu Features.To_Koi8-u     :w ++enc=koi8-u ++ff=dos<Cr>:q<Cr>
+    menu Features.Sort_Asc    :sort<Cr>:echo ''<Cr>
+    menu Features.Sort_Desc   :sort!<Cr>:echo ''<Cr>
+    menu Features.To_Utf8     :w ++enc=utf8   ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Win1251  :w ++enc=cp1251 ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Cp866    :w ++enc=cp866  ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Koi8-r   :w ++enc=koi8-r ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Koi8-u   :w ++enc=koi8-u ++ff=dos<Cr>:q<Cr>
+    menu Features.Text_to_HEX :%!xxd<Cr>:echo ''<Cr>
+    menu Features.HEX_to_Text :%!xxd -r<Cr>:echo ''<Cr>
     nmap <silent><M-F5>  :emenu Features.<TAB>
     imap <silent><M-F5>  <Esc>:emenu Features.<TAB>
     vmap <silent><M-F5>  <Esc>:emenu Features.<TAB>
@@ -571,15 +596,15 @@ endif
     imap <silent><M-F6>  <Esc>:tabnext<Cr>
     vmap <silent><M-F6>  <Esc>:tabnext<Cr>
 
-"Ctrl+F6 - split window horizontally
+"Ctrl+F6 - split window horizontally / sort selection desc
     nmap <silent><C-F6> :call HSplit()<Cr>
     imap <silent><C-F6> <Esc>:call HSplit()<Cr>i
-    vmap <silent><C-F6> <Esc>:call HSplit()<Cr>
+    vmap <silent><C-F6> :sort!<Cr>
 
-"Shift+F6 - split window vertically
+"Shift+F6 - split window vertically / sort selection asc
     nmap <silent><S-F6> :call VSplit()<Cr>
     imap <silent><S-F6> <Esc>:call VSplit()<Cr>i
-    vmap <silent><S-F6> <Esc>:call VSplit()<Cr>
+    vmap <silent><S-F6> :sort<Cr>
 
 "F7 - search / search selection
     nmap <F7> :call SearchFor(0)<Cr>
@@ -880,10 +905,10 @@ endif
     imap <silent><C-\> <Esc>:set scrollbind<Cr>
     vmap <silent><C-\> <Esc>:set scrollbind<Cr>
 
-"Ctrl+] - open all folders
-    nmap <silent><C-]> zR
-    imap <silent><C-]> <Esc>zRi
-    vmap <silent><C-]> <Esc>zRgv
+"Ctrl+] - collapse / unCollapse
+    nmap <silent><C-]> :call Collapse()<Cr>
+    imap <silent><C-]> <Esc>:call Collapse()<Cr>
+    vmap <silent><C-]> <Esc>:call Collapse()<Cr>
 
 "Ctrl+A - select all
     nmap <C-A> ggVG
@@ -920,7 +945,7 @@ endif
     imap <silent><C-G> <Esc>:call GoToLine(1)<Cr>
     vmap <silent><C-G> <Esc>:call GoToLine(2)<Cr>
 
-"Ctrl+H - Search and Replace
+"Ctrl+H - search and replace
     nmap <silent><C-H> :call SearchAndReplace(0)<Cr>
     imap <silent><C-H> <Esc>:call SearchAndReplace(1)<Cr>
     vmap <silent><C-H> "+y:call SearchAndReplace(2)<Cr>
@@ -940,22 +965,22 @@ endif
     imap <C-L> <Right>
     vmap <C-L> <Right>
 
-"Ctrl+N - New file
+"Ctrl+N - new Tab
     nmap <silent><C-N> :tabnew<CR>
     imap <silent><C-N> <Esc>:tabnew<Cr>
     vmap <silent><C-N> <Esc>:tabnew<Cr>
 
-"Ctrl+O - Open file
+"Ctrl+O - open file
     nmap <silent><C-O> :call OpenFile()<Cr>
     imap <silent><C-O> <Esc>:call OpenFile()<Cr>
     vmap <silent><C-O> <Esc>:call OpenFile()<Cr>
 
-"Ctrl+P - close all folders
-    nmap <silent><C-P> zM
-    imap <silent><C-P> <Esc>zMi
-    vmap <silent><C-P> <Esc>zMgv
+"Ctrl+P - print all buffers
+    nmap <silent><C-P> :ls<Cr>
+    imap <silent><C-P> <Esc>:ls<Cr>
+    vmap <silent><C-P> <Esc>:ls<Cr>
 
-"Ctrl+Q - Copy file to history
+"Ctrl+Q - copy file to history
     nmap <silent><C-Q> :call SaveFile(0)<Cr> :!CopyToHistory.bat %<Cr>
     imap <silent><C-Q> <Esc>:call SaveFile(0)<Cr> :!CopyToHistory.bat %<Cr>i
     vmap <silent><C-Q> <Esc>:call SaveFile(0)<Cr> :!CopyToHistory.bat %<Cr>i
@@ -970,7 +995,7 @@ endif
     imap <C-S> <Esc>:call SaveFile(1)<Cr>
     vmap <C-S> <Esc>:call SaveFile(2)<Cr>
 
-"Ctrl+T - New file
+"Ctrl+T - new file
     nmap <silent><C-T> :enew<CR>
     imap <silent><C-T> <Esc>:enew<Cr>
     vmap <silent><C-T> <Esc>:enew<Cr>
