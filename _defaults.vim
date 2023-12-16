@@ -1,5 +1,5 @@
-" ------------------------------------------------
-"             https://vimhelp.org/builtin.txt.html
+" ---------------------------------------------------------------------------
+"                                        https://vimhelp.org/builtin.txt.html
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -25,8 +25,6 @@ set ignorecase
 set wildoptions=pum
 set clipboard=unnamed
 "set virtualedit=onemore
-"set foldmethod=manual
-"set foldmethod=indent
 set foldmethod=syntax
 set fileformats=dos,unix,mac
 set nofoldenable
@@ -39,8 +37,7 @@ set tabstop=4
 set expandtab
 
 let @s = ''     "line of the block to select
-let @t = ''     "collapse/unCollapse switcher
-let @u = 1      "search from the beginning of the file
+let @u = 1      "search from the beginning of file
 let @v = ''     "string to search
 let @w = 0      "is comparasion mode ON
 let @x = 11     "font size
@@ -359,18 +356,6 @@ function TabsToSpaces()
     call ClearOutput()
 endfunc
 
-function Collapse()
-    if @t > ''
-        call feedkeys('z')
-        call feedkeys('R')
-        let @t=''
-    else
-        call feedkeys('z')
-        call feedkeys('M')
-        let @t='*'
-    endif
-endfunc
-
 function Turn_CSV_into_SQL()
     let @a = input('Delimiter : ','\t')
     if  @a > ' '
@@ -396,7 +381,6 @@ function SelectBlock(mode)
             endwhile
             call feedkeys('g')
             call feedkeys('g')
-
             call feedkeys('V')
             let num = 0
             while num < strchars( @a )
@@ -508,21 +492,16 @@ endif
     imap <silent><F3> <Esc><Right>:call SearchNext(1)<Cr>
     vmap <F3> "+xi
 
-"Alt+F3 - Menu 'Cleaning'
-    menu Cleaning.Clear_High-Lights   :let @/=''<Cr>:echo ''<Cr>
-    menu Cleaning.Clear_Global_BMs    :delmarks A-Z0-9<Cr>:echo ''<Cr>
-    menu Cleaning.Clear_Local_BMs     :delmarks!<Cr>:echo ''<Cr>
-    menu Cleaning.Close_All_Buff      :%bd<Cr>:echo ''<Cr>
-    menu Cleaning.Copy_FilePath       :let @* = expand('%:p')<Cr>:echo ''<Cr>
-    menu Cleaning.Show_Histosy        :bro ol<Cr>
-    nmap <silent><M-F3>  :emenu Cleaning.<TAB>
-    imap <silent><M-F3>  <Esc>:emenu Cleaning.<TAB>
-    vmap <silent><M-F3>  <Esc>:emenu Cleaning.<TAB>
+"Alt+F3 - close current tab
+    nmap <silent><M-F3> :tabclose<Cr>
+    imap <silent><M-F3> <Esc>:tabclose<Cr>
+    vmap <silent><M-F3> <Esc>:tabclose<Cr>
 
-"Ctrl+F3 - close current tab
-    nmap <silent><C-F3> :tabclose<Cr>
-    imap <silent><C-F3> <Esc>:tabclose<Cr>
-    vmap <silent><C-F3> <Esc>:tabclose<Cr>
+"Ctrl+F3 - print all buffers
+    nmap <silent><C-F3> :ls<Cr>
+    imap <silent><C-F3> <Esc>:ls<Cr>
+    vmap <silent><C-F3> <Esc>:ls<Cr>
+
 
 "Shift+F3 - search prev
     nmap <silent><S-F3> :call SearchPrev(0)<Cr>
@@ -555,7 +534,55 @@ endif
     vmap <F5> <Del><C-v>
     cmap <F5> <C-r>"
 
-"Alt+F5 - Menu 'Features'
+"Alt+F5 Menu 'Transformations'
+    menu Transformations.Del_trail_spaces  :call DeleteTrailingSpaces()<Cr>
+    menu Transformations.Add_before_begins :call Insert(0)<Cr>
+    menu Transformations.Add_after_ends    :call Insert(1)<Cr>
+    menu Transformations.Tabs_to_spaces    :call TabsToSpaces()<Cr>
+    menu Transformations.Join_all_lines    :call JoinAllLines()<Cr>
+    menu Transformations.Split_cur_line    :call SplitCurrentLine()<Cr>
+    menu Transformations.CSV_into_SQL      :call Turn_CSV_into_SQL()<Cr>
+    nmap <silent><M-F5>  :emenu Transformations.<Tab>
+    imap <silent><M-F5>  <Esc>:emenu Transformations.<Tab>
+    vmap <silent><M-F5>  <Esc>:emenu Transformations.<Tab>
+
+"Ctrl+F5 - run script
+    nmap <silent><C-F5> :call RunScript()<Cr>
+    imap <silent><C-F5> <Esc>:call RunScript()<Cr>
+    vmap <silent><C-F5> <Esc>:call RunScript()<Cr>
+
+"Shift+F5 - Menu 'Controls'
+    menu Controls.Clear_High-Lights  :let @/=''<Cr>:echo ''<Cr>
+    menu Controls.Clear_Global_BMs   :delmarks A-Z0-9<Cr>:echo ''<Cr>
+    menu Controls.Clear_Local_BMs    :delmarks!<Cr>:echo ''<Cr>
+    menu Controls.Collapse_all       zM
+    menu Controls.UnCollapse_all     zR
+    menu Controls.Copy_FilePath      :let @* = expand('%:p')<Cr>:echo ''<Cr>
+    menu Controls.Show_Histosy       :bro ol<Cr>
+    menu Controls.Close_All_Buff     :%bd<Cr>:echo ''<Cr>
+    nmap <silent><S-F5>  :emenu Controls.<TAB>
+    imap <silent><S-F5>  <Esc>:emenu Controls.<TAB>
+    vmap <silent><S-F5>  <Esc>:emenu Controls.<TAB>
+
+"F6 - goto next view / calculate selected expression
+    nmap <F6> <C-w>w
+    imap <F6> <Esc><C-w>w
+    vmap <silent><F6> "+y:call Calculate()<Cr>
+
+"Alt+F6 - Menu 'Split'
+    menu Split.Split_Vertically   :call VSplit()<Cr>
+    menu Split.Split_Horizontally :call HSplit()<Cr>
+    menu Split.Scroll_Binding     :set scrollbind<Cr>
+    nmap <silent><M-F6>  :emenu Split.<Tab>
+    imap <silent><M-F6>  <Esc>:emenu Split.<Tab>
+    vmap <silent><M-F6>  <Esc>:emenu Split.<Tab>
+
+"Ctrl+F6 - goto next tab
+    nmap <silent><C-F6>  :tabnext<Cr>
+    imap <silent><C-F6>  <Esc>:tabnext<Cr>
+    vmap <silent><C-F6>  <Esc>:tabnext<Cr>
+
+"Shift+F6 - Menu 'Features'
     menu Features.Sort_Asc    :sort<Cr>:echo ''<Cr>
     menu Features.Sort_Desc   :sort!<Cr>:echo ''<Cr>
     menu Features.To_Utf8     :w ++enc=utf8   ++ff=dos<Cr>:q<Cr>
@@ -565,88 +592,46 @@ endif
     menu Features.To_Koi8-u   :w ++enc=koi8-u ++ff=dos<Cr>:q<Cr>
     menu Features.Text_to_HEX :%!xxd<Cr>:echo ''<Cr>
     menu Features.HEX_to_Text :%!xxd -r<Cr>:echo ''<Cr>
-    nmap <silent><M-F5>  :emenu Features.<TAB>
-    imap <silent><M-F5>  <Esc>:emenu Features.<TAB>
-    vmap <silent><M-F5>  <Esc>:emenu Features.<TAB>
+    nmap <silent><S-F6>  :emenu Features.<TAB>
+    imap <silent><S-F6>  <Esc>:emenu Features.<TAB>
+    vmap <silent><S-F6>  <Esc>:emenu Features.<TAB>
 
-"Ctrl+F5 - run script
-    nmap <silent><C-F5> :call RunScript()<Cr>
-    imap <silent><C-F5> <Esc>:call RunScript()<Cr>
-    vmap <silent><C-F5> <Esc>:call RunScript()<Cr>
-
-"Shift+F5 - Menu 'Transformations'
-    menu Transformations.Del_trail_spaces   :call DeleteTrailingSpaces()<Cr>
-    menu Transformations.Add_before_begins  :call Insert(0)<Cr>
-    menu Transformations.Add_after_ends     :call Insert(1)<Cr>
-    menu Transformations.Tabs_to_spaces     :call TabsToSpaces()<Cr>
-    menu Transformations.Join_all_lines     :call JoinAllLines()<Cr>
-    menu Transformations.Split_cur_line     :call SplitCurrentLine()<Cr>
-    menu Transformations.CSV_into_SQL       :call Turn_CSV_into_SQL()<Cr>
-    nmap <silent><S-F5>  :emenu Transformations.<Tab>
-    imap <silent><S-F5>  <Esc>:emenu Transformations.<Tab>
-    vmap <silent><S-F5>  <Esc>:emenu Transformations.<Tab>
-
-"F6 - goto next view / calculate selected expression
-    nmap <F6> <C-w>w
-    imap <F6> <Esc><C-w>w
-    vmap <silent><F6> "+y:call Calculate()<Cr>
-
-"Alt+F6 - goto next tab
-    nmap <silent><M-F6>  :tabnext<Cr>
-    imap <silent><M-F6>  <Esc>:tabnext<Cr>
-    vmap <silent><M-F6>  <Esc>:tabnext<Cr>
-
-"Ctrl+F6 - split window horizontally / sort selection desc
-    nmap <silent><C-F6> :call HSplit()<Cr>
-    imap <silent><C-F6> <Esc>:call HSplit()<Cr>i
-    vmap <silent><C-F6> :sort!<Cr>
-
-"Shift+F6 - split window vertically / sort selection asc
-    nmap <silent><S-F6> :call VSplit()<Cr>
-    imap <silent><S-F6> <Esc>:call VSplit()<Cr>i
-    vmap <silent><S-F6> :sort<Cr>
-
-"F7 - search / search selection
-    nmap <F7> :call SearchFor(0)<Cr>
-    imap <F7> <Esc>:call SearchFor(1)<Cr>
-    vmap <F7> "+y:call SearchFor(2)<Cr>
+"F7 - hightlight current word / highLight selection
+    nmap <silent><F7> :let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>
+    imap <silent><F7> <Esc>:let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>i
+    vmap <silent><F7> "+ymz:let @v=substitute( trim( @* ) , '\/' , '\\\/' , 'g')<Cr>:execute "/" . @v<Cr>`z
 
 "Alt+F7 - search in files
     nmap <silent><M-F7> :call SearchInFiles(0)<Cr>
     vmap <silent><M-F7> <Esc>:call SearchInFiles(1)<Cr>
     imap <silent><M-F7> "+y:call SearchInFiles(2)<Cr>
 
-"Ctrl+F7 - search and Replace
-    nmap <silent><C-F7> :call SearchAndReplace(0)<Cr>
-    imap <silent><C-F7> :call SearchAndReplace(1)<Cr>
-    vmap <silent><C-F7> "+y:call SearchAndReplace(2)<Cr>
+"Ctrl+F7 - Menu 'Settings'
+    menu Settings.Search_from_begin :let @u=1<Cr>:echo ''<Cr>
+    menu Settings.Search_further    :let @u=0<Cr>:echo ''<Cr>
+    menu Settings.Ignore_cases      :set ignorecase<Cr>:echo ''<Cr>
+    menu Settings.No_Ignore_cases   :set noignorecase<Cr>:echo ''<Cr>
+    menu Settings.Fold_Syntax       :set foldmethod=syntax<Cr>:echo ''<Cr>
+    menu Settings.Fold_Manual       :set foldmethod=manual<Cr>:echo ''<Cr>
+    menu Settings.Fold_Indent       :set foldmethod=indent<Cr>:echo ''<Cr>
+    nmap <silent><C-F7>  :emenu Settings.<Tab>
+    imap <silent><C-F7>  <Esc>:emenu Settings.<Tab>
+    vmap <silent><C-F7>  <Esc>:emenu Settings.<Tab>
 
-"Shift+F7 - Menu 'Settings'
-    menu Settings.Search_From_1   :let @u=1<Cr>:echo ''<Cr>
-    menu Settings.Search_Further  :let @u=0<Cr>:echo ''<Cr>
-    menu Settings.Ignore_Case     :set ignorecase<Cr>:echo ''<Cr>
-    menu Settings.No_Ignore_Case  :set noignorecase<Cr>:echo ''<Cr>
-    menu Settings.Fold_Syntax     :set foldmethod=syntax<Cr>:echo ''<Cr>
-    menu Settings.Fold_Manual     :set foldmethod=manual<Cr>:echo ''<Cr>
-    menu Settings.Fold_Indent     :set foldmethod=indent<Cr>:echo ''<Cr>
-    nmap <silent><S-F7>  :emenu Settings.<Tab>
-    imap <silent><S-F7>  <Esc>:emenu Settings.<Tab>
-    vmap <silent><S-F7>  <Esc>:emenu Settings.<Tab>
+"Shift+F7 - clear highlights / highLight selection
+    nmap <silent><S-F7> :let @/=''<Cr>:echo ''<Cr>
+    imap <silent><S-F7> <Esc>:let @/=''<Cr>:echo ''<Cr>i
+    vmap <silent><S-F7> "+ymz:let @v=substitute( trim( @* ) , '\/' , '\\\/' , 'g')<Cr>:execute "/" . @v<Cr>`z
 
-"F8 - go to next difference / multi-cursor insert / search-highLighting
+"F8 - go to next difference / multi-cursor insert / highLight selection
     nmap <silent><F8> ]c
     imap <silent><F8> <Esc>i
-    vmap <silent><F8> "+y:let @v=substitute( trim( @* ) , '\/' , '\\\/' , 'g')<Cr>:execute "/" . @v<Cr>
+    vmap <silent><F8> "+ymz:let @v=substitute( trim( @* ) , '\/' , '\\\/' , 'g')<Cr>:execute "/" . @v<Cr>`z
 
 "Alt+F8 - compare views
     nmap <silent><M-F8> :call CompareViews()<Cr>
     imap <silent><M-F8> <Esc>:call CompareViews()<Cr>
     vmap <silent><M-F8> <Esc>:call CompareViews()<Cr>
-
-"Shift+F8 - go to prev difference
-    nmap <silent><S-F8> [c
-    imap <silent><S-F8> <Esc>[c
-    vmap <silent><S-F8> <Esc>[c
 
 "Ctrl+F8 - Menu 'Encoding'
     menu Encoding.Utf8     :e ++enc=utf8   ++ff=dos<Cr>:echo ''<Cr>
@@ -657,6 +642,11 @@ endif
     nmap <silent><C-F8>  :emenu Encoding.<TAB>
     imap <silent><C-F8>  <Exc>:emenu Encoding.<TAB>
     vmap <silent><C-F8>  <Exc>:emenu Encoding.<TAB>
+
+"Shift+F8 - go to prev difference
+    nmap <silent><S-F8> [c
+    imap <silent><S-F8> <Esc>[c
+    vmap <silent><S-F8> <Esc>[c
 
 "F9 - go to local bookmark N1
     nmap <F9> `a
@@ -719,7 +709,7 @@ endif
     vmap <S-F11> <Esc>mcgv
 
 "F12 - go to local bookmark N4
-    nmap <F12> `d
+    nmap <silent><F12> `d
     imap <F12> <Esc>`di
     vmap <F12> <Esc>`d
 
@@ -880,15 +870,22 @@ endif
     nmap <S-PageDown> v<PageDown>
     imap <S-PageDown> <PageDown>
 
-"Ctrl+` - show/hide menu-bar
+"Ctrl+` - show/hide menu-bar in gVim
     nmap <silent><C-`> :call ShowHideMenubar()<Cr>
     imap <silent><C-`> <Esc>:call ShowHideMenubar()<Cr>i
     vmap <silent><C-`> <Esc>:call ShowHideMenubar()<Cr>v
 
-"Ctrl+0 - set font size in to default
-    nmap <silent><C-0> :call ChangeFontSize(0)<Cr>
-    imap <silent><C-0> <Esc>:call ChangeFontSize(0)<Cr>i
-    vmap <silent><C-0> <Esc>:call ChangeFontSize(0)<Cr>v
+" ~ - clear output
+    nmap <silent>~ :echo ''<Cr>
+
+" * - hightlight current word in Vim
+    nmap <silent>* :let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>
+
+" _ - clear local bookmarks
+    nmap <silent>_ :delmarks!<Cr>:echo ''<Cr>
+
+" + - clear global bookmarks
+    nmap <silent>+ :delmarks A-Z0-9<Cr>:echo ''<Cr>
 
 "Ctrl+- - decrease font size
     nmap <silent><C--> :call ChangeFontSize(-1)<Cr>
@@ -900,15 +897,18 @@ endif
     imap <silent><C-=> <Esc>:call ChangeFontSize(1)<Cr>i
     vmap <silent><C-=> <Esc>:call ChangeFontSize(1)<Cr>v
 
-"Ctrl+\ - set scrollbind - synchronous scrolling of views
-    nmap <silent><C-\> :set scrollbind<Cr>
-    imap <silent><C-\> <Esc>:set scrollbind<Cr>
-    vmap <silent><C-\> <Esc>:set scrollbind<Cr>
+" " - set sync scrolling
+    nmap <silent>" :set scrollbind<Cr>
 
-"Ctrl+] - collapse / unCollapse
-    nmap <silent><C-]> :call Collapse()<Cr>
-    imap <silent><C-]> <Esc>:call Collapse()<Cr>
-    vmap <silent><C-]> <Esc>:call Collapse()<Cr>
+"Ctrl+\ - incremental search
+    nmap <C-\> :call feedkeys('/')<Cr>
+    imap <C-\> <Esc>:call feedkeys('/')<Cr>
+    vmap <C-\> "+y:call feedkeys('/')<Cr>:call feedkeys( trim( @* ) )<Cr>
+
+"Ctrl+0 - set font size in to default
+    nmap <silent><C-0> :call ChangeFontSize(0)<Cr>
+    imap <silent><C-0> <Esc>:call ChangeFontSize(0)<Cr>i
+    vmap <silent><C-0> <Esc>:call ChangeFontSize(0)<Cr>v
 
 "Ctrl+A - select all
     nmap <C-A> ggVG
@@ -975,10 +975,10 @@ endif
     imap <silent><C-O> <Esc>:call OpenFile()<Cr>
     vmap <silent><C-O> <Esc>:call OpenFile()<Cr>
 
-"Ctrl+P - print all buffers
-    nmap <silent><C-P> :ls<Cr>
-    imap <silent><C-P> <Esc>:ls<Cr>
-    vmap <silent><C-P> <Esc>:ls<Cr>
+"Ctrl+P - reserved
+    nmap <silent><C-P> :call ClearOutput()<Cr>
+    imap <silent><C-P> <Esc>:call ClearOutput()<Cr>i
+    vmap <silent><C-P> <Esc>:call ClearOutput()<Cr>
 
 "Ctrl+Q - copy file to history
     nmap <silent><C-Q> :call SaveFile(0)<Cr> :!CopyToHistory.bat %<Cr>
@@ -1027,3 +1027,18 @@ endif
 
 "Space - go to command-mode
     nmap <Space> :
+
+"Shift+Space - incremental search in gVim
+    nmap <S-Space> :call feedkeys('/')<Cr>
+    imap <S-Space> <Esc>:call feedkeys('/')<Cr>
+    vmap <S-Space> "+y:call feedkeys('/')<Cr>:call feedkeys( trim( @* ) )<Cr>
+
+"Mouse middle click - clear highlights
+    nmap <silent><MiddleMouse> :let @/=''<Cr>:echo ''<Cr>
+    imap <silent><MiddleMouse> <Esc>:let @/=''<Cr>:echo ''<Cr>i
+    vmap <silent><MiddleMouse> <Esc>:let @/=''<Cr>:echo ''<Cr>
+
+"Mouse left double click - hightlight current word
+    nmap <silent><2-LeftMouse> :let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>
+    imap <silent><2-LeftMouse> <Esc>:let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>i
+    vmap <silent><2-LeftMouse> <Esc>:let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>
