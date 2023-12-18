@@ -1,5 +1,5 @@
-" ---------------------------------------------------------------------------
-"                                        https://vimhelp.org/builtin.txt.html
+" ---------------------------------------
+"   https://vimhelp.org/builtin.txt.html
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -560,9 +560,9 @@ endif
     menu Controls.Copy_FilePath      :let @* = expand('%:p')<Cr>:echo ''<Cr>
     menu Controls.Show_Histosy       :bro ol<Cr>
     menu Controls.Close_All_Buff     :%bd<Cr>:echo ''<Cr>
-    nmap <silent><S-F5>  :emenu Controls.<TAB>
-    imap <silent><S-F5>  <Esc>:emenu Controls.<TAB>
-    vmap <silent><S-F5>  <Esc>:emenu Controls.<TAB>
+    nmap <silent><S-F5> :emenu Controls.<TAB>
+    imap <silent><S-F5> <Esc>:emenu Controls.<TAB>
+    vmap <silent><S-F5> <Esc>:emenu Controls.<TAB>
 
 "F6 - goto next view / calculate selected expression
     nmap <F6> <C-w>w
@@ -573,14 +573,14 @@ endif
     menu Split.Split_Vertically   :call VSplit()<Cr>
     menu Split.Split_Horizontally :call HSplit()<Cr>
     menu Split.Scroll_Binding     :set scrollbind<Cr>
-    nmap <silent><M-F6>  :emenu Split.<Tab>
-    imap <silent><M-F6>  <Esc>:emenu Split.<Tab>
-    vmap <silent><M-F6>  <Esc>:emenu Split.<Tab>
+    nmap <silent><M-F6> :emenu Split.<Tab>
+    imap <silent><M-F6> <Esc>:emenu Split.<Tab>
+    vmap <silent><M-F6> <Esc>:emenu Split.<Tab>
 
 "Ctrl+F6 - goto next tab
-    nmap <silent><C-F6>  :tabnext<Cr>
-    imap <silent><C-F6>  <Esc>:tabnext<Cr>
-    vmap <silent><C-F6>  <Esc>:tabnext<Cr>
+    nmap <silent><C-F6> :tabnext<Cr>
+    imap <silent><C-F6> <Esc>:tabnext<Cr>
+    vmap <silent><C-F6> <Esc>:tabnext<Cr>
 
 "Shift+F6 - Menu 'Features'
     menu Features.Sort_Asc    :sort<Cr>:echo ''<Cr>
@@ -596,7 +596,7 @@ endif
     imap <silent><S-F6>  <Esc>:emenu Features.<TAB>
     vmap <silent><S-F6>  <Esc>:emenu Features.<TAB>
 
-"F7 - hightlight current word / highLight selection
+"F7 - high-light current word / high-light selection
     nmap <silent><F7> :let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>
     imap <silent><F7> <Esc>:let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>i
     vmap <silent><F7> "+ymz:let @v=substitute( trim( @* ) , '\/' , '\\\/' , 'g')<Cr>:execute "/" . @v<Cr>`z
@@ -618,15 +618,15 @@ endif
     imap <silent><C-F7>  <Esc>:emenu Settings.<Tab>
     vmap <silent><C-F7>  <Esc>:emenu Settings.<Tab>
 
-"Shift+F7 - clear highlights / highLight selection
+"Shift+F7 - clear high-lights / high-Light selection
     nmap <silent><S-F7> :let @/=''<Cr>:echo ''<Cr>
     imap <silent><S-F7> <Esc>:let @/=''<Cr>:echo ''<Cr>i
     vmap <silent><S-F7> "+ymz:let @v=substitute( trim( @* ) , '\/' , '\\\/' , 'g')<Cr>:execute "/" . @v<Cr>`z
 
-"F8 - go to next difference / multi-cursor insert / highLight selection
+"F8 - go to next difference / search selection
     nmap <silent><F8> ]c
-    imap <silent><F8> <Esc>i
-    vmap <silent><F8> "+ymz:let @v=substitute( trim( @* ) , '\/' , '\\\/' , 'g')<Cr>:execute "/" . @v<Cr>`z
+    imap <silent><F8> ]c
+    vmap <silent><F8> "+y:call SearchFor(2)<Cr>
 
 "Alt+F8 - compare views
     nmap <silent><M-F8> :call CompareViews()<Cr>
@@ -634,14 +634,14 @@ endif
     vmap <silent><M-F8> <Esc>:call CompareViews()<Cr>
 
 "Ctrl+F8 - Menu 'Encoding'
-    menu Encoding.Utf8     :e ++enc=utf8   ++ff=dos<Cr>:echo ''<Cr>
-    menu Encoding.Win1251  :e ++enc=cp1251 ++ff=dos<Cr>:echo ''<Cr>
-    menu Encoding.Cp866    :e ++enc=cp866  ++ff=dos<Cr>:echo ''<Cr>
-    menu Encoding.Koi8-r   :e ++enc=koi8-r ++ff=dos<Cr>:echo ''<Cr>
-    menu Encoding.Koi8-u   :e ++enc=koi8-u ++ff=dos<Cr>:echo ''<Cr>
-    nmap <silent><C-F8>  :emenu Encoding.<TAB>
-    imap <silent><C-F8>  <Exc>:emenu Encoding.<TAB>
-    vmap <silent><C-F8>  <Exc>:emenu Encoding.<TAB>
+    menu Encoding.Utf8    :e ++enc=utf8   ++ff=dos<Cr>:echo ''<Cr>
+    menu Encoding.Win1251 :e ++enc=cp1251 ++ff=dos<Cr>:echo ''<Cr>
+    menu Encoding.Cp866   :e ++enc=cp866  ++ff=dos<Cr>:echo ''<Cr>
+    menu Encoding.Koi8-r  :e ++enc=koi8-r ++ff=dos<Cr>:echo ''<Cr>
+    menu Encoding.Koi8-u  :e ++enc=koi8-u ++ff=dos<Cr>:echo ''<Cr>
+    nmap <silent><C-F8>   :emenu Encoding.<TAB>
+    imap <silent><C-F8>   <Exc>:emenu Encoding.<TAB>
+    vmap <silent><C-F8>   <Exc>:emenu Encoding.<TAB>
 
 "Shift+F8 - go to prev difference
     nmap <silent><S-F8> [c
@@ -878,7 +878,7 @@ endif
 " ~ - clear output
     nmap <silent>~ :echo ''<Cr>
 
-" * - hightlight current word in Vim
+" * - high-light current word in Vim
     nmap <silent>* :let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>
 
 " _ - clear local bookmarks
@@ -897,8 +897,10 @@ endif
     imap <silent><C-=> <Esc>:call ChangeFontSize(1)<Cr>i
     vmap <silent><C-=> <Esc>:call ChangeFontSize(1)<Cr>v
 
-" " - set sync scrolling
-    nmap <silent>" :set scrollbind<Cr>
+"Ctrl+] - multi-cursor insert
+    nmap <silent><C-]> <C-v>
+    imap <silent><C-]> <Esc>i
+    vmap <silent><C-]> I
 
 "Ctrl+\ - incremental search
     nmap <C-\> :call feedkeys('/')<Cr>
@@ -935,7 +937,7 @@ endif
     imap <silent><C-E> <Esc>:call Complile()<Cr>
     vmap <silent><C-E> <Esc>:call Complile()<Cr>
 
-"Ctrl+F - search
+"Ctrl+F - search / search selection
     nmap <C-F> :call SearchFor(0)<Cr>
     imap <C-F> <Esc>:call SearchFor(1)<Cr>
     vmap <C-F> "+y:call SearchFor(2)<Cr>
@@ -1033,7 +1035,7 @@ endif
     imap <S-Space> <Esc>:call feedkeys('/')<Cr>
     vmap <S-Space> "+y:call feedkeys('/')<Cr>:call feedkeys( trim( @* ) )<Cr>
 
-"Mouse middle click - clear highlights
+"Mouse middle click - clear high-lights
     nmap <silent><MiddleMouse> :let @/=''<Cr>:echo ''<Cr>
     imap <silent><MiddleMouse> <Esc>:let @/=''<Cr>:echo ''<Cr>i
     vmap <silent><MiddleMouse> <Esc>:let @/=''<Cr>:echo ''<Cr>
