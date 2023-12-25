@@ -1,9 +1,15 @@
-" -----------------------------------------------------------------
-"                              https://vimhelp.org/builtin.txt.html
+" -------------------------------------------------
+"             https://vimhelp.org/builtin.txt.html
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
 hi Visual ctermbg=darkgrey ctermfg=NONE guibg=#555555 guifg=NONE
+hi ModeMsg ctermbg=NONE ctermfg=lightgray
+hi StatusLine ctermbg=darkgrey
+hi Search ctermbg=blue ctermfg=lightgray guifg=#1c1c1c guibg=#5fafaf
+hi IncSearch ctermfg=234 ctermbg=108 guifg=#1c1c1c guibg=#87af87
+hi CurSearch ctermbg=blue ctermfg=lightgray guifg=#1c1c1c guibg=#5fafaf
+hi Cursor guifg=#181818 guibg=#CCCCCC
 
 language en_US
 language time en_US
@@ -35,8 +41,10 @@ set softtabstop=4
 set shiftwidth=4
 set tabstop=4
 set expandtab
+set updatetime=30000  " interval of autosave ( ms )
 
-let @s = ''     "line of the block to select
+let @s = 1      "1 = auto-save is ON; 0 = auto-save is OFF
+let @t = ''     "line of the block to select
 let @u = 1      "search from the beginning of file
 let @v = ''     "string to search
 let @w = 0      "is comparasion mode ON
@@ -44,22 +52,13 @@ let @x = 11     "font size
 let @y = 1      "is menu-bar hidden
 let @z = 0      "is output-bar open
 
-function ClearOutput()
-    echon "\r\r"
-    echon ''
-endfunc
-
 function RunScript()
-    :call SaveFile(0)
     :!__.bat %
 endfunc
 
-function OpenFile()
-    if has("gui_running")
-        :browse confirm e
-    else
-        :Explore
-    endif
+function ClearOutput()
+    echon "\r\r"
+    echon ''
 endfunc
 
 function HSplit()
@@ -79,7 +78,6 @@ function VSplit()
 endfunc
 
 function Complile()
-    call SaveFile(0)
     set makeprg=compile.bat\ %
     :make
     :copen
@@ -140,11 +138,8 @@ endfunc
 function Exit(mode)
     :delmarks A-Z0-9
     :delmarks!
-    if a:mode == 1
-        try
-            :x
-        catch
-        endtry
+    if ( a:mode == 1 ) && ( @s > 0 )
+        call SaveFile(0)
     endif
     :q!
 endfunc
@@ -233,69 +228,6 @@ function GoToLine(mode)
     endif
 endfunc
 
-function SearchAndReplace(mode)
-    let @a= ''
-    if a:mode == 2
-        let @a = @*
-    endif
-    let @a = input('Search for : ', @a )
-    if @a > ''
-        let @b = input('Replace with : ', @a )
-        if @b > ''
-            try
-                if @u == 1
-                    execute ':%s/' . @a . '/' . @b . '/gc'
-                else
-                    execute ':,$s/' . @a . '/' . @b . '/gc'
-                endif
-            catch
-            endtry
-        endif
-    endif
-    call ClearOutput()
-    if a:mode == 1
-        call feedkeys('i')
-    endif
-endfunc
-
-function SplitCurrentLine()
-    let @a = input('Delimiter : ')
-    let @a = ':.s/' . @a . '/\r/g'
-    try
-        execute @a
-    catch
-    endtry
-    call ClearOutput()
-endfunc
-
-function JoinAllLines()
-    let @a = input('Delimiter : ')
-    if @a > ''
-        let @a = ':%s/\n/'. @a .'/g'
-    else
-        let @a = ':%s/\n//g'
-    endif
-    try
-        execute @a
-    catch
-    endtry
-    call ClearOutput()
-endfunc
-
-function Insert(mode)
-    let @a = trim( @* )
-    let @a = input('String to insert : ' , @a)
-    if  @a > ''
-        if a:mode > 0
-            execute(':%norm A' . @a)
-        else
-            execute(':%s!^!' . @a . '!')
-        endif
-    endif
-    call ClearOutput()
-    call feedkeys('i')
-endfunc
-
 function SaveSelection()
     let @a = input('Save selection as : ')
     if @a > ''
@@ -314,8 +246,9 @@ function SaveFileAs(mode)
         :browse confirm save
     else
         execute(':w ' . input('Save file as : ') )
-        call ClearOutput()
     endif
+    let b:start_time = localtime()
+    call ClearOutput()
     if a:mode == 1
         if getcurpos()[2]>1
             call feedkeys('l')
@@ -325,17 +258,29 @@ function SaveFileAs(mode)
 endfunc
 
 function SaveFile(mode)
-    if  bufname('%')[0] < ' '
-        call SaveFileAs(0)
-    else
-        :w
+    if &modified
+        if  bufname('%')[0] < ' '
+            call SaveFileAs(0)
+        else
+            :w
+        endif
     endif
+    let b:start_time = localtime()
+    call ClearOutput()
     if a:mode == 1
         call feedkeys('i')
     endif
     if a:mode == 2
         call feedkeys('g')
         call feedkeys('v')
+    endif
+endfunc
+
+function OpenFile()
+    if has("gui_running")
+        :browse confirm e
+    else
+        :Explore
     endif
 endfunc
 
@@ -370,33 +315,66 @@ function Turn_CSV_into_SQL()
     call ClearOutput()
 endfunc
 
-function SelectBlock(mode)
-    if @s > ''
-        try
-            let @a=getcurpos()[1]
-            let num = 0
-            while num < strchars( @s )
-                call feedkeys( @s[ num ] )
-                let  num += 1
-            endwhile
-            call feedkeys('g')
-            call feedkeys('g')
-            call feedkeys('V')
-            let num = 0
-            while num < strchars( @a )
-                call feedkeys( @a[ num ] )
-                let  num += 1
-            endwhile
-            call feedkeys('g')
-            call feedkeys('g')
-        catch
-        endtry
-        let @s=''
-    else
-        let @s=getcurpos()[1]
-        if a:mode == 1
-            call feedkeys('i')
+function SplitCurrentLine()
+    let @a = input('Delimiter : ')
+    let @a = ':.s/' . @a . '/\r/g'
+    try
+        execute @a
+    catch
+    endtry
+    call ClearOutput()
+endfunc
+
+function Insert(mode)
+    let @a = trim( @* )
+    let @a = input('String to insert : ' , @a)
+    if  @a > ''
+        if a:mode > 0
+            execute(':%norm A' . @a)
+        else
+            execute(':%s!^!' . @a . '!')
         endif
+    endif
+    call ClearOutput()
+    call feedkeys('i')
+endfunc
+
+function JoinAllLines()
+    let @a = input('Delimiter : ')
+    if @a > ''
+        let @a = ':%s/\n/'. @a .'/g'
+    else
+        let @a = ':%s/\n//g'
+    endif
+    try
+        execute @a
+    catch
+    endtry
+    call ClearOutput()
+endfunc
+
+function SearchAndReplace(mode)
+    let @a= ''
+    if a:mode == 2
+        let @a = @*
+    endif
+    let @a = input('Search for : ', @a )
+    if @a > ''
+        let @b = input('Replace with : ', @a )
+        if @b > ''
+            try
+                if @u == 1
+                    execute ':%s/' . @a . '/' . @b . '/gc'
+                else
+                    execute ':,$s/' . @a . '/' . @b . '/gc'
+                endif
+            catch
+            endtry
+        endif
+    endif
+    call ClearOutput()
+    if a:mode == 1
+        call feedkeys('i')
     endif
 endfunc
 
@@ -440,6 +418,54 @@ function Comment(mode)
         endtry
     endif
 endfunc
+
+function SelectBlock(mode)
+    if @t > ''
+        try
+            let @a=getcurpos()[1]
+            let num = 0
+            while num < strchars( @t )
+                call feedkeys( @t[ num ] )
+                let  num += 1
+            endwhile
+            call feedkeys('g')
+            call feedkeys('g')
+            call feedkeys('V')
+            let num = 0
+            while num < strchars( @a )
+                call feedkeys( @a[ num ] )
+                let  num += 1
+            endwhile
+            call feedkeys('g')
+            call feedkeys('g')
+        catch
+        endtry
+        let @t=''
+    else
+        let @t=getcurpos()[1]
+        if a:mode == 1
+            call feedkeys('i')
+        endif
+    endif
+endfunc
+
+function AutoSave()
+    if !exists("b:start_time")
+        let b:start_time = localtime()
+    endif
+    if ( &modified > 0 ) && ( bufname('%')[0] > ' ' )
+        if ( ( localtime() - b:start_time ) >= ( &updatetime / 1000 ) )
+            update
+            let b:start_time = localtime()
+        endif
+    endif
+endfunction
+
+if @s > 0
+    let b:start_time = localtime()
+    au CursorHold,CursorHoldI * call AutoSave()
+    au CursorMoved,CursorMovedI * call AutoSave()
+endif
 
 if has("gui_running")
     set guioptions-=r
@@ -534,7 +560,26 @@ endif
     vmap <F5> <Del><C-v>
     cmap <F5> <C-r>"
 
-"Alt+F5 Menu 'Transformations'
+"Alt+F5 - Menu 'Features'
+    menu Features.Sort_Asc    :sort<Cr>:echo ''<Cr>
+    menu Features.Sort_Desc   :sort!<Cr>:echo ''<Cr>
+    menu Features.To_Utf8     :w ++enc=utf8   ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Win1251  :w ++enc=cp1251 ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Cp866    :w ++enc=cp866  ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Koi8-r   :w ++enc=koi8-r ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Koi8-u   :w ++enc=koi8-u ++ff=dos<Cr>:q<Cr>
+    menu Features.Text_to_HEX :%!xxd<Cr>:echo ''<Cr>
+    menu Features.HEX_to_Text :%!xxd -r<Cr>:echo ''<Cr>
+    nmap <silent><M-F5>  :emenu Features.<TAB>
+    imap <silent><M-F5>  <Esc>:emenu Features.<TAB>
+    vmap <silent><M-F5>  <Esc>:emenu Features.<TAB>
+
+"Ctrl+F5 - run script
+    nmap <silent><C-F5> :call SaveFile(0)<Cr>:call RunScript()<Cr>
+    imap <silent><C-F5> <Esc>:call SaveFile(0)<Cr>:call RunScript()<Cr>
+    vmap <silent><C-F5> <Esc>:call SaveFile(0)<Cr>:call RunScript()<Cr>
+
+"Shift+F5 Menu 'Transformations'
     menu Transformations.Del_trail_spaces  :call DeleteTrailingSpaces()<Cr>
     menu Transformations.Add_before_begins :call Insert(0)<Cr>
     menu Transformations.Add_after_ends    :call Insert(1)<Cr>
@@ -542,26 +587,9 @@ endif
     menu Transformations.Join_all_lines    :call JoinAllLines()<Cr>
     menu Transformations.Split_cur_line    :call SplitCurrentLine()<Cr>
     menu Transformations.CSV_into_SQL      :call Turn_CSV_into_SQL()<Cr>
-    nmap <silent><M-F5>  :emenu Transformations.<Tab>
-    imap <silent><M-F5>  <Esc>:emenu Transformations.<Tab>
-    vmap <silent><M-F5>  <Esc>:emenu Transformations.<Tab>
-
-"Ctrl+F5 - run script
-    nmap <silent><C-F5> :call RunScript()<Cr>
-    imap <silent><C-F5> <Esc>:call RunScript()<Cr>
-    vmap <silent><C-F5> <Esc>:call RunScript()<Cr>
-
-"Shift+F5 - Menu 'Controls'
-    menu Controls.Clear_Global_BMs :delmarks A-Z0-9<Cr>:echo ''<Cr>
-    menu Controls.Clear_Local_BMs  :delmarks!<Cr>:echo ''<Cr>
-    menu Controls.Collapse_all     zM
-    menu Controls.UnCollapse_all   zR
-    menu Controls.Copy_FilePath    :let @* = expand('%:p')<Cr>:echo ''<Cr>
-    menu Controls.Show_Histosy     :bro ol<Cr>
-    menu Controls.Close_All_Files  :%bd<Cr>:echo ''<Cr>
-    nmap <silent><S-F5>  :emenu Controls.<TAB>
-    imap <silent><S-F5>  <Esc>:emenu Controls.<TAB>
-    vmap <silent><S-F5>  <Esc>:emenu Controls.<TAB>
+    nmap <silent><S-F5>  :emenu Transformations.<Tab>
+    imap <silent><S-F5>  <Esc>:emenu Transformations.<Tab>
+    vmap <silent><S-F5>  <Esc>:emenu Transformations.<Tab>
 
 "F6 - goto next view / calculate selected expression
     nmap <F6> <C-w>w
@@ -581,19 +609,17 @@ endif
     imap <silent><C-F6>  <Esc>:tabnext<Cr>i
     vmap <silent><C-F6>  <Esc>:tabnext<Cr>
 
-"Shift+F6 - Menu 'Features'
-    menu Features.Sort_Asc    :sort<Cr>:echo ''<Cr>
-    menu Features.Sort_Desc   :sort!<Cr>:echo ''<Cr>
-    menu Features.To_Utf8     :w ++enc=utf8   ++ff=dos<Cr>:q<Cr>
-    menu Features.To_Win1251  :w ++enc=cp1251 ++ff=dos<Cr>:q<Cr>
-    menu Features.To_Cp866    :w ++enc=cp866  ++ff=dos<Cr>:q<Cr>
-    menu Features.To_Koi8-r   :w ++enc=koi8-r ++ff=dos<Cr>:q<Cr>
-    menu Features.To_Koi8-u   :w ++enc=koi8-u ++ff=dos<Cr>:q<Cr>
-    menu Features.Text_to_HEX :%!xxd<Cr>:echo ''<Cr>
-    menu Features.HEX_to_Text :%!xxd -r<Cr>:echo ''<Cr>
-    nmap <silent><S-F6>  :emenu Features.<TAB>
-    imap <silent><S-F6>  <Esc>:emenu Features.<TAB>
-    vmap <silent><S-F6>  <Esc>:emenu Features.<TAB>
+"Shift+F6 - Menu 'Controls'
+    menu Controls.Clear_Global_BMs :delmarks A-Z0-9<Cr>:echo ''<Cr>
+    menu Controls.Clear_Local_BMs  :delmarks!<Cr>:echo ''<Cr>
+    menu Controls.Collapse_all     zM
+    menu Controls.UnCollapse_all   zR
+    menu Controls.Copy_FilePath    :let @* = expand('%:p')<Cr>:echo ''<Cr>
+    menu Controls.Show_Histosy     :bro ol<Cr>
+    menu Controls.Close_All_Files  :%bd<Cr>:echo ''<Cr>
+    nmap <silent><S-F6>  :emenu Controls.<TAB>
+    imap <silent><S-F6>  <Esc>:emenu Controls.<TAB>
+    vmap <silent><S-F6>  <Esc>:emenu Controls.<TAB>
 
 "F7 - high-light current word / high-light selection
     nmap <silent><F7> :let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>
@@ -936,9 +962,9 @@ endif
     vmap <silent><C-D> <Esc>:redo<Cr>gv
 
 "Ctrl+E - compile
-    nmap <silent><C-E> :call Complile()<Cr>
-    imap <silent><C-E> <Esc>:call Complile()<Cr>
-    vmap <silent><C-E> <Esc>:call Complile()<Cr>
+    nmap <silent><C-E> :call SaveFile(0)<Cr>:call Complile()<Cr>
+    imap <silent><C-E> <Esc>:call SaveFile(0)<Cr>:call Complile()<Cr>
+    vmap <silent><C-E> <Esc>:call SaveFile(0)<Cr>:call Complile()<Cr>
 
 "Ctrl+F - search / search selection
     nmap <C-F> :call SearchFor(0)<Cr>
@@ -971,9 +997,9 @@ endif
     vmap <C-L> <Right>
 
 "Ctrl+O - open file
-    nmap <silent><C-O> :call OpenFile()<Cr>
-    imap <silent><C-O> <Esc>:call OpenFile()<Cr>
-    vmap <silent><C-O> <Esc>:call OpenFile()<Cr>
+    nmap <silent><C-O> :call SaveFile(0)<Cr>:call OpenFile()<Cr>
+    imap <silent><C-O> <Esc>:call SaveFile(0)<Cr>:call OpenFile()<Cr>
+    vmap <silent><C-O> <Esc>:call SaveFile(0)<Cr>:call OpenFile()<Cr>
 
 "Ctrl+P - reserved
     nmap <silent><C-P> :call ClearOutput()<Cr>
@@ -996,9 +1022,9 @@ endif
     vmap <C-S> <Esc>:call SaveFile(2)<Cr>
 
 "Ctrl+T - new file
-    nmap <silent><C-T> :enew<CR>
-    imap <silent><C-T> <Esc>:enew<Cr>
-    vmap <silent><C-T> <Esc>:enew<Cr>
+    nmap <silent><C-T> :call SaveFile(0)<Cr>:enew<CR>
+    imap <silent><C-T> <Esc>:call SaveFile(0)<Cr>:enew<Cr>
+    vmap <silent><C-T> <Esc>:call SaveFile(0)<Cr>:enew<Cr>
 
 "Ctrl+U - up
     nmap <C-U> <Up>
@@ -1028,22 +1054,27 @@ endif
 "Space - go to command-mode
     nmap <Space> :
 
-"Ctrl+Space - auto-completion in gVim
+"Ctrl+Space - auto-completion ( in gVim )
     nmap <silent><C-Space> i<C-N>
     imap <silent><C-Space> <C-N>
     vmap <silent><C-Space> <Esc>i<C-N>
 
-"Shift+Space - incremental search in gVim
+"Shift+Space - incremental search ( in gVim )
     nmap <S-Space> :call feedkeys('/')<Cr>
     imap <S-Space> <Esc>:call feedkeys('/')<Cr>
     vmap <S-Space> "+y:call feedkeys('/')<Cr>:call feedkeys( trim( @* ) )<Cr>
 
-"Mouse middle click - clear high-lights in gVim
+"Ctrl+Enter - new Tab ( in gVim )
+    nmap <silent><C-Enter> :tabnew<CR>
+    imap <silent><C-Enter> <Esc>:tabnew<Cr>
+    vmap <silent><C-Enter> <Esc>:tabnew<Cr>
+
+"Mouse middle click - clear high-lights ( in gVim )
     nmap <silent><MiddleMouse> :let @/=''<Cr>:echo ''<Cr>
     imap <silent><MiddleMouse> <Esc>:let @/=''<Cr>:echo ''<Cr>i
     vmap <silent><MiddleMouse> <Esc>:let @/=''<Cr>:echo ''<Cr>
 
-"Mouse left double click - hightlight current word in gVim
+"Mouse left double click - hightlight current word ( in gVim )
     nmap <silent><2-LeftMouse> :let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>
     imap <silent><2-LeftMouse> <Esc>:let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>i
     vmap <silent><2-LeftMouse> <Esc>:let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>
