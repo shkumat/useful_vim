@@ -1,15 +1,16 @@
-" -------------------------------------------------
-"             https://vimhelp.org/builtin.txt.html
+" --------------------------------------
+"   https://vimhelp.org/builtin.txt.html
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
 hi Visual ctermbg=darkgrey ctermfg=NONE guibg=#555555 guifg=NONE
 hi ModeMsg ctermbg=NONE ctermfg=lightgray
+hi WildMenu ctermbg=lightgray ctermfg=blue
 hi StatusLine ctermbg=darkgrey
-hi Search ctermbg=blue ctermfg=lightgray guifg=#1c1c1c guibg=#5fafaf
+hi Search ctermbg=blue ctermfg=lightgray guifg=#cccccc guibg=#1f5faf
 hi IncSearch ctermfg=234 ctermbg=108 guifg=#1c1c1c guibg=#87af87
-hi CurSearch ctermbg=blue ctermfg=lightgray guifg=#1c1c1c guibg=#5fafaf
-hi Cursor guifg=#181818 guibg=#CCCCCC
+hi CurSearch ctermbg=blue ctermfg=lightgray guifg=#cccccc guibg=#1f5faf
+hi Cursor guifg=#181818 guibg=#cccccc
 
 language en_US
 language time en_US
@@ -138,7 +139,7 @@ endfunc
 function Exit(mode)
     :delmarks A-Z0-9
     :delmarks!
-    if ( a:mode == 1 ) && ( @s > 0 )
+    if ( a:mode == 1 )
         call SaveFile(0)
     endif
     :q!
@@ -242,13 +243,14 @@ function SaveSelection()
 endfunc
 
 function SaveFileAs(mode)
+    let b:start_time = localtime()
     if has("gui_running")
         :browse confirm save
+        call ClearOutput()
     else
         execute(':w ' . input('Save file as : ') )
+        call ClearOutput()
     endif
-    let b:start_time = localtime()
-    call ClearOutput()
     if a:mode == 1
         if getcurpos()[2]>1
             call feedkeys('l')
@@ -523,11 +525,10 @@ endif
     imap <silent><M-F3> <Esc>:tabclose<Cr>
     vmap <silent><M-F3> <Esc>:tabclose<Cr>
 
-"Ctrl+F3 - print all buffers
-    nmap <silent><C-F3> :ls<Cr>
-    imap <silent><C-F3> <Esc>:ls<Cr>
-    vmap <silent><C-F3> <Esc>:ls<Cr>
-
+"Ctrl+F3 - close current view
+    nmap <silent><C-F3> :close<Cr>
+    imap <silent><C-F3> <Esc>:close<Cr>i
+    vmap <silent><C-F3> <Esc>:close<Cr>
 
 "Shift+F3 - search prev
     nmap <silent><S-F3> :call SearchPrev(0)<Cr>
@@ -560,19 +561,17 @@ endif
     vmap <F5> <Del><C-v>
     cmap <F5> <C-r>"
 
-"Alt+F5 - Menu 'Features'
-    menu Features.Sort_Asc    :sort<Cr>:echo ''<Cr>
-    menu Features.Sort_Desc   :sort!<Cr>:echo ''<Cr>
-    menu Features.To_Utf8     :w ++enc=utf8   ++ff=dos<Cr>:q<Cr>
-    menu Features.To_Win1251  :w ++enc=cp1251 ++ff=dos<Cr>:q<Cr>
-    menu Features.To_Cp866    :w ++enc=cp866  ++ff=dos<Cr>:q<Cr>
-    menu Features.To_Koi8-r   :w ++enc=koi8-r ++ff=dos<Cr>:q<Cr>
-    menu Features.To_Koi8-u   :w ++enc=koi8-u ++ff=dos<Cr>:q<Cr>
-    menu Features.Text_to_HEX :%!xxd<Cr>:echo ''<Cr>
-    menu Features.HEX_to_Text :%!xxd -r<Cr>:echo ''<Cr>
-    nmap <silent><M-F5>  :emenu Features.<TAB>
-    imap <silent><M-F5>  <Esc>:emenu Features.<TAB>
-    vmap <silent><M-F5>  <Esc>:emenu Features.<TAB>
+"Alt+F5 - Menu 'Controls'
+    menu Controls.Clear_Global_BMs :delmarks A-Z0-9<Cr>:echo ''<Cr>
+    menu Controls.Clear_Local_BMs  :delmarks!<Cr>:echo ''<Cr>
+    menu Controls.Collapse_all     zM
+    menu Controls.UnCollapse_all   zR
+    menu Controls.Copy_FilePath    :let @* = expand('%:p')<Cr>:echo ''<Cr>
+    menu Controls.Show_Histosy     :bro ol<Cr>
+    menu Controls.Close_All_Files  :%bd<Cr>:echo ''<Cr>
+    nmap <silent><M-F5>  :emenu Controls.<TAB>
+    imap <silent><M-F5>  <Esc>:emenu Controls.<TAB>
+    vmap <silent><M-F5>  <Esc>:emenu Controls.<TAB>
 
 "Ctrl+F5 - run script
     nmap <silent><C-F5> :call SaveFile(0)<Cr>:call RunScript()<Cr>
@@ -600,26 +599,20 @@ endif
     menu Split.Split_Vertically   :call VSplit()<Cr>
     menu Split.Split_Horizontally :call HSplit()<Cr>
     menu Split.Scroll_Binding     :set scrollbind<Cr>
+    menu Split.Compare_Views      :call CompareViews()
     nmap <silent><M-F6>  :emenu Split.<Tab>
     imap <silent><M-F6>  <Esc>:emenu Split.<Tab>
     vmap <silent><M-F6>  <Esc>:emenu Split.<Tab>
 
-"Ctrl+F6 - goto next tab
-    nmap <silent><C-F6>  :tabnext<Cr>
-    imap <silent><C-F6>  <Esc>:tabnext<Cr>i
-    vmap <silent><C-F6>  <Esc>:tabnext<Cr>
+"Ctrl+F6  - print list of buffers
+    nmap <silent><C-F6> :ls<Cr>
+    imap <silent><C-F6> <Esc>:ls<Cr>
+    vmap <silent><C-F6> <Esc>:ls<Cr>
 
-"Shift+F6 - Menu 'Controls'
-    menu Controls.Clear_Global_BMs :delmarks A-Z0-9<Cr>:echo ''<Cr>
-    menu Controls.Clear_Local_BMs  :delmarks!<Cr>:echo ''<Cr>
-    menu Controls.Collapse_all     zM
-    menu Controls.UnCollapse_all   zR
-    menu Controls.Copy_FilePath    :let @* = expand('%:p')<Cr>:echo ''<Cr>
-    menu Controls.Show_Histosy     :bro ol<Cr>
-    menu Controls.Close_All_Files  :%bd<Cr>:echo ''<Cr>
-    nmap <silent><S-F6>  :emenu Controls.<TAB>
-    imap <silent><S-F6>  <Esc>:emenu Controls.<TAB>
-    vmap <silent><S-F6>  <Esc>:emenu Controls.<TAB>
+"Shift+F6 - goto prev view
+    nmap <silent><S-F6> <C-w>p
+    imap <silent><S-F6> <Esc><C-w>pi
+    vmap <silent><S-F6> <Esc><C-w>p
 
 "F7 - high-light current word / high-light selection
     nmap <silent><F7> :let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>
@@ -631,17 +624,19 @@ endif
     vmap <silent><M-F7> <Esc>:call SearchInFiles(1)<Cr>
     imap <silent><M-F7> "+y:call SearchInFiles(2)<Cr>
 
-"Ctrl+F7 - Menu 'Settings'
-    menu Settings.Search_from_begin :let @u=1<Cr>:echo ''<Cr>
-    menu Settings.Search_further    :let @u=0<Cr>:echo ''<Cr>
-    menu Settings.Ignore_cases      :set ignorecase<Cr>:echo ''<Cr>
-    menu Settings.No_Ignore_cases   :set noignorecase<Cr>:echo ''<Cr>
-    menu Settings.Fold_Syntax       :set foldmethod=syntax<Cr>:echo ''<Cr>
-    menu Settings.Fold_Manual       :set foldmethod=manual<Cr>:echo ''<Cr>
-    menu Settings.Fold_Indent       :set foldmethod=indent<Cr>:echo ''<Cr>
-    nmap <silent><C-F7>  :emenu Settings.<Tab>
-    imap <silent><C-F7>  <Esc>:emenu Settings.<Tab>
-    vmap <silent><C-F7>  <Esc>:emenu Settings.<Tab>
+"Ctrl+F7 - Menu 'Features'
+    menu Features.Sort_Asc    :sort<Cr>:echo ''<Cr>
+    menu Features.Sort_Desc   :sort!<Cr>:echo ''<Cr>
+    menu Features.To_Utf8     :w ++enc=utf8   ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Win1251  :w ++enc=cp1251 ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Cp866    :w ++enc=cp866  ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Koi8-r   :w ++enc=koi8-r ++ff=dos<Cr>:q<Cr>
+    menu Features.To_Koi8-u   :w ++enc=koi8-u ++ff=dos<Cr>:q<Cr>
+    menu Features.Text_to_HEX :%!xxd<Cr>:echo ''<Cr>
+    menu Features.HEX_to_Text :%!xxd -r<Cr>:echo ''<Cr>
+    nmap <silent><C-F7>  :emenu Features.<TAB>
+    imap <silent><C-F7>  <Esc>:emenu Features.<TAB>
+    vmap <silent><C-F7>  <Esc>:emenu Features.<TAB>
 
 "Shift+F7 - clear high-lights / high-Light selection
     nmap <silent><S-F7> :let @/=''<Cr>:echo ''<Cr>
@@ -653,10 +648,17 @@ endif
     imap <silent><F8> <Esc>i
     vmap <silent><F8> "+y:call SearchFor(2)<Cr>
 
-"Alt+F8 - compare views
-    nmap <silent><M-F8> :call CompareViews()<Cr>
-    imap <silent><M-F8> <Esc>:call CompareViews()<Cr>
-    vmap <silent><M-F8> <Esc>:call CompareViews()<Cr>
+"Alt+F8 - Menu 'Settings'
+    menu Settings.Search_from_begin :let @u=1<Cr>:echo ''<Cr>
+    menu Settings.Search_further    :let @u=0<Cr>:echo ''<Cr>
+    menu Settings.Ignore_cases      :set ignorecase<Cr>:echo ''<Cr>
+    menu Settings.No_Ignore_cases   :set noignorecase<Cr>:echo ''<Cr>
+    menu Settings.Fold_Syntax       :set foldmethod=syntax<Cr>:echo ''<Cr>
+    menu Settings.Fold_Manual       :set foldmethod=manual<Cr>:echo ''<Cr>
+    menu Settings.Fold_Indent       :set foldmethod=indent<Cr>:echo ''<Cr>
+    nmap <silent><M-F8>  :emenu Settings.<Tab>
+    imap <silent><M-F8>  <Esc>:emenu Settings.<Tab>
+    vmap <silent><M-F8>  <Esc>:emenu Settings.<Tab>
 
 "Ctrl+F8 - Menu 'Encoding'
     menu Encoding.Utf8     :e ++enc=utf8   ++ff=dos<Cr>:echo ''<Cr>
@@ -757,18 +759,13 @@ endif
     vmap <silent> <Tab> >gv
 
 "Ctrl+Tab - next buffer ( in gVim )
-    nmap <silent> <C-Tab> :bn<Cr>
-    imap <silent> <C-Tab> <Esc>:bn<Cr>i
-    vmap <silent> <C-Tab> <Esc>:bn<Cr>
+    nmap <silent> <C-Tab> :call SaveFile(0)<Cr>:bn<Cr>
+    imap <silent> <C-Tab> <Esc>:call SaveFile(0)<Cr>:bn<Cr>i
+    vmap <silent> <C-Tab> <Esc>:call SaveFile(0)<Cr>:bn<Cr>
 
-"Shift+Tab - next buffer / move block left
-if has("gui_running")
-    nmap <silent> <S-Tab> <4<Left>i
-    imap <silent> <S-Tab> <Esc><4<Left>i
-else
-    nmap <silent> <S-Tab> :bn<Cr>
-    imap <silent> <S-Tab> <Esc>:bn<Cr><Right>i
-endif
+"Shift+Tab - prev buffer / move block left
+    nmap <silent> <S-Tab> :call SaveFile(0)<Cr>:bp<Cr>
+    imap <silent> <S-Tab> <Esc>:call SaveFile(0)<Cr>:bp<Cr><Right>i
     vmap <silent> <S-Tab> <gv
 
 "BackSpace - go to edit-mode
@@ -802,7 +799,12 @@ endif
     imap <silent><M-Del> <Esc>:let @a=@*<Cr>dd:let @*=@a<Cr>i
     vmap <silent><M-Del> <Esc>:let @a=@*<Cr>dd:let @*=@a<Cr>v
 
-"Shift+Delete - cut
+"Ctrl+Del - delete word
+    nmap <silent><C-Del> :let @a=@*<Cr>daw:let @*=@a<Cr>i
+    imap <silent><C-Del> <Esc>:let @a=@*<Cr>daw:let @*=@a<Cr>i
+    vmap <silent><C-Del> <Esc>:let @a=@*<Cr>daw:let @*=@a<Cr>i
+
+"Shift+Delete - cut current line / selection
     nmap <S-Del> ddi
     imap <S-Del> <Esc>ddi
     vmap <S-Del> "+xi
@@ -857,25 +859,25 @@ endif
     vmap <S-End> <End>
     imap <S-End> <Esc>v<End>
 
-"Alt+PgDn - go to prev view
-    nmap <M-PageUp> <C-w>p
-    imap <M-PageUp> <Esc><C-w>p
-    vmap <M-PageUp> <Esc><C-w>p
+"Alt+PgUp - go to prev tab
+    nmap <silent><M-PageUp> :tabprev<Cr>
+    imap <silent><M-PageUp> <Esc>:tabprev<Cr>
+    vmap <silent><silent><M-PageUp> <Esc>:tabprev<Cr>
 
 "Ctrl+PgUp - go to prev buffer
-    nmap <silent> <C-PageUp> :bp<Cr>
-    imap <silent> <C-PageUp> <Esc>:bp<Cr>i
-    vmap <silent> <C-PageUp> <Esc>:bp<Cr>
+    nmap <silent><C-PageUp> :call SaveFile(0)<Cr>:bp<Cr>
+    imap <silent><C-PageUp> <Esc>:call SaveFile(0)<Cr>:bp<Cr>i
+    vmap <silent><C-PageUp> <Esc>:call SaveFile(0)<Cr>:bp<Cr>
 
-"Alt+PgDn - go to next view
-    nmap <M-PageDown> <C-w>w
-    imap <M-PageDown> <Esc><C-w>w
-    vmap <M-PageDown> <Esc><C-w>w
+"Alt+PgDn - go to next tab
+    nmap <silent><M-PageDown> :tabnext<Cr>
+    imap <silent><M-PageDown> <Esc>:tabnext<Cr>
+    vmap <silent><M-PageDown> <Esc>:tabnext<Cr>
 
 "Ctrl+PgDn - go to next buffer
-    nmap <silent> <C-PageDown> :bn<Cr>
-    imap <silent> <C-PageDown> <Esc>:bn<Cr>i
-    vmap <silent> <C-PageDown> <Esc>:bn<Cr>
+    nmap <silent><C-PageDown> :call SaveFile(0)<Cr>:bn<Cr>
+    imap <silent><C-PageDown> <Esc>:call SaveFile(0)<Cr>:bn<Cr>i
+    vmap <silent><C-PageDown> <Esc>:call SaveFile(0)<Cr>:bn<Cr>
 
 "Shift+arrow keys - select text
     vmap <S-Up> <Up>
@@ -906,25 +908,40 @@ endif
 " * - high-light current word in Vim
     nmap <silent>* :let @/='\<<C-R>=expand("<cword>")<Cr>\>'<Cr>:set hls<Cr>
 
-"Ctrl+] - new Tab
-    nmap <silent><C-]> :tabnew<CR>
-    imap <silent><C-]> <Esc>:tabnew<Cr>
-    vmap <silent><C-]> <Esc>:tabnew<Cr>
+"Ctrl+] - clear output
+    nmap <silent><C-]> :call ClearOutput()<Cr>
+    imap <silent><C-]> <Esc>:call ClearOutput()<Cr>i
+    vmap <silent><C-]> <Esc>:call ClearOutput()<Cr>
 
-"Ctrl+; - goto prev tab ( in gVim )
-    nmap <silent><C-;>  :tabprev<Cr>
-    imap <silent><C-;>  <Esc>:tabprev<Cr>i
-    vmap <silent><C-;>  <Esc>:tabprev<Cr>
+"Ctrl+; - go to prev tab ( in gVim )
+    nmap <silent><C-;> :tabprev<Cr>
+    imap <silent><C-;> <Esc>:tabprev<Cr>
+    vmap <silent><C-;> <Esc>:tabprev<Cr>
 
-"Ctrl+' - goto next tab ( in gVim )
-    nmap <silent><C-'>  :tabnext<Cr>
-    imap <silent><C-'>  <Esc>:tabnext<Cr>i
-    vmap <silent><C-'>  <Esc>:tabnext<Cr>
+"Ctrl+' - go to next tab ( in gVim )
+    nmap <silent><C-'> :tabprev<Cr>
+    imap <silent><C-'> <Esc>:tabprev<Cr>
+    vmap <silent><C-'> <Esc>:tabprev<Cr>
+
+"Ctrl+, - split vertically ( in gVim )
+    nmap <silent><C-,>  :call VSplit()<Cr>
+    imap <silent><C-,>  <Esc>:call VSplit()<Cr>i
+    vmap <silent><C-,>  <Esc>:call VSplit()<Cr>
+
+"Ctrl+. - split horizontally ( in gVim )
+    nmap <silent><C-.>  :call HSplit()<Cr>
+    imap <silent><C-.>  <Esc>:call VSplit()<Cr>i
+    vmap <silent><C-.>  <Esc>:call VSplit()<Cr>
 
 "Ctrl+\ - incremental search
     nmap <C-\> :call feedkeys('/')<Cr>
     imap <C-\> <Esc>:call feedkeys('/')<Cr>
     vmap <C-\> "+y:call feedkeys('/')<Cr>:call feedkeys( trim( @* ) )<Cr>
+
+"Ctrl+/ - incremental search ( in gVim )
+    nmap <C-/> :call feedkeys('/')<Cr>
+    imap <C-/> <Esc>:call feedkeys('/')<Cr>
+    vmap <C-/> "+y:call feedkeys('/')<Cr>:call feedkeys( trim( @* ) )<Cr>
 
 "Ctrl+- - decrease font size ( in gVim )
     nmap <silent><C--> :call ChangeFontSize(-1)<Cr>
@@ -940,6 +957,11 @@ endif
     nmap <silent><C-0> :call ChangeFontSize(0)<Cr>
     imap <silent><C-0> <Esc>:call ChangeFontSize(0)<Cr>i
     vmap <silent><C-0> <Esc>:call ChangeFontSize(0)<Cr>v
+
+"Ctrl+Enter - clear output ( in gVim )
+    nmap <C-Enter> :call ClearOutput()<Cr>
+    imap <C-Enter> <Esc>:call ClearOutput()<Cr>i
+    vmap <C-Enter> <Esc>:call ClearOutput()<Cr>
 
 "Ctrl+A - select all
     nmap <C-A> ggVG
@@ -1001,10 +1023,10 @@ endif
     imap <silent><C-O> <Esc>:call SaveFile(0)<Cr>:call OpenFile()<Cr>
     vmap <silent><C-O> <Esc>:call SaveFile(0)<Cr>:call OpenFile()<Cr>
 
-"Ctrl+P - reserved
-    nmap <silent><C-P> :call ClearOutput()<Cr>
-    imap <silent><C-P> <Esc>:call ClearOutput()<Cr>i
-    vmap <silent><C-P> <Esc>:call ClearOutput()<Cr>
+"Ctrl+P - new Tab
+    nmap <silent><C-P> :tabnew<CR>
+    imap <silent><C-P> <Esc>:tabnew<Cr>
+    vmap <silent><C-P> <Esc>:tabnew<Cr>
 
 "Ctrl+Q - copy file to history
     nmap <silent><C-Q> :call SaveFile(0)<Cr> :!CopyToHistory.bat %<Cr>
