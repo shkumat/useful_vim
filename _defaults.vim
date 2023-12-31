@@ -1,5 +1,6 @@
-" --------------------------------------
-"   https://vimhelp.org/builtin.txt.html
+" -----------------------------------------------------------
+"                        https://vimhelp.org/builtin.txt.html
+
 " colorscheme slate
 " colorscheme torte
 colorscheme habamax
@@ -42,6 +43,7 @@ set softtabstop=4
 set shiftwidth=4
 set tabstop=4
 set expandtab
+
 set updatetime=30000  " interval of autosave ( ms )
 
 let @s = 1      "1 = auto-save is ON; 0 = auto-save is OFF
@@ -537,7 +539,7 @@ endif
 
 "F4 - goto next message / copy selected block
     nmap <silent><F4> :call GotoMessage(0)<Cr>
-    imap <silent><F4> <Esc>GotoMessage(0)<Cr>i
+    imap <silent><F4> <Esc>:call GotoMessage(0)<Cr>i
     vmap <F4> "+yi
 
 "Alt+F4 - exit without saving
@@ -552,8 +554,8 @@ endif
 
 "Shift+F4 - goto prev message
     nmap <silent><S-F4> :call GotoMessage(1)<Cr>
-    imap <silent><S-F4> <Esc>GotoMessage(1)<Cr>i
-    vmap <silent><S-F4> <Esc>GotoMessage(1)<Cr>
+    imap <silent><S-F4> <Esc>:call GotoMessage(1)<Cr>i
+    vmap <silent><S-F4> <Esc>:call GotoMessage(1)<Cr>
 
 "F5 - paste
     nmap <F5> pi
@@ -1085,11 +1087,6 @@ endif
     nmap <S-Space> :call feedkeys('/')<Cr>
     imap <S-Space> <Esc>:call feedkeys('/')<Cr>
     vmap <S-Space> "+y:call feedkeys('/')<Cr>:call feedkeys( trim( @* ) )<Cr>
-
-"Ctrl+Enter - new Tab ( in gVim )
-    nmap <silent><C-Enter> :tabnew<CR>
-    imap <silent><C-Enter> <Esc>:tabnew<Cr>
-    vmap <silent><C-Enter> <Esc>:tabnew<Cr>
 
 "Mouse middle click - clear high-lights ( in gVim )
     nmap <silent><MiddleMouse> :let @/=''<Cr>:echo ''<Cr>
