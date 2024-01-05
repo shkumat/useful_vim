@@ -1,5 +1,5 @@
-" -----------------------------------------------------------
-"                        https://vimhelp.org/builtin.txt.html
+" -------------
+" https://vimhelp.org/builtin.txt.html
 
 " colorscheme slate
 " colorscheme torte
@@ -757,6 +757,51 @@ endif
     imap <S-F12> <Esc>mdi
     vmap <S-F12> <Esc>mdgv
 
+"Alt+1 - go to 1st tab
+    nmap <silent><M-1> 1gt
+    imap <silent><M-1> <Esc>1gti
+    vmap <silent><M-1> <Esc>1gt
+
+"Alt+2 - go to 2nd tab
+    nmap <silent><M-2> 2gt
+    imap <silent><M-2> <Esc>2gti
+    vmap <silent><M-2> <Esc>2gt
+
+"Alt+3 - go to 3rd tab
+    nmap <silent><M-3> 3gt
+    imap <silent><M-3> <Esc>3gti
+    vmap <silent><M-3> <Esc>3gt
+
+"Alt+4 - go to 4th tab
+    nmap <silent><M-4> 4gt
+    imap <silent><M-4> <Esc>4gti
+    vmap <silent><M-4> <Esc>4gt
+
+"Alt+5 - go to 5th tab
+    nmap <silent><M-5> 5gt
+    imap <silent><M-5> <Esc>5gti
+    vmap <silent><M-5> <Esc>5gt
+
+"Alt+6 - go to 6th tab
+    nmap <silent><M-6> 6gt
+    imap <silent><M-6> <Esc>6gti
+    vmap <silent><M-6> <Esc>6gt
+
+"Alt+7 - go to 7th tab
+    nmap <silent><M-7> 7gt
+    imap <silent><M-7> <Esc>7gti
+    vmap <silent><M-7> <Esc>7gt
+
+"Alt+8 - go to 8th tab
+    nmap <silent><M-8> 8gt
+    imap <silent><M-8> <Esc>8gti
+    vmap <silent><M-8> <Esc>8gt
+
+"Alt+9 - go to 9th tab
+    nmap <silent><M-9> 9gt
+    imap <silent><M-9> <Esc>9gti
+    vmap <silent><M-9> <Esc>9gt
+
 "Tab - move block right
     vmap <silent> <Tab> >gv
 
@@ -772,6 +817,11 @@ endif
 
 "BackSpace - go to edit-mode
     nmap <silent><BS> i<BS>
+
+"Shift+Enter - print ;<Enter> ( in gVim )
+    nmap <S-Enter> i;<Cr>
+    imap <S-Enter> ;<Cr>
+    vmap <S-Enter> <Esc>i;<Cr>
 
 "Insert - go to edit-mode
     vmap <Insert> I
