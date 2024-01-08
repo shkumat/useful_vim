@@ -1,5 +1,5 @@
-" -------------------------------------
-"  https://vimhelp.org/builtin.txt.html
+" ------------------------------------------
+"       https://vimhelp.org/builtin.txt.html
 
 " colorscheme slate
 " colorscheme torte
@@ -864,8 +864,8 @@ endif
 
 "Alt+Shift+5 - go to local bookmark N5 ( in gVim )
     nmap <silent><M-%> `e
-    imap <silent><M-%$> <Esc>`ei
-    vmap <silent><M-%$> <Esc>`e
+    imap <silent><M-%> <Esc>`ei
+    vmap <silent><M-%> <Esc>`e
 
 "Ctrl+5 - go to global bookmark N5 ( in gVim )
     nmap <silent><C-5> `E
@@ -887,20 +887,100 @@ endif
     imap <silent><M-6> <Esc>6gti
     vmap <silent><M-6> <Esc>6gt
 
+"Alt+Shift+6 - go to local bookmark N6 ( in gVim )
+    nmap <silent><M-^> `f
+    imap <silent><M-^> <Esc>`fi
+    vmap <silent><M-^> <Esc>`f
+
+"Ctrl+6 - go to global bookmark N6 ( in gVim )
+    nmap <silent><C-6> `F
+    imap <silent><C-6> <Esc>`Fi
+    vmap <silent><C-6> <Esc>`F
+
+"Ctrl+Alt+6 - set local bookmark N6 ( in gVim )
+    nmap <silent><C-M-6> mf
+    imap <silent><C-M-6> <Esc>mfi
+    vmap <silent><C-M-6> <Esc>mfgv
+
+"Ctrl+Shift+6 - set global bookmark N6 ( in gVim )
+    nmap <silent><C-S-^> mF
+    imap <silent><C-S-^> <Esc>mFi
+    vmap <silent><C-S-^> <Esc>mFgv
+
 "Alt+7 - go to 7th tab ( in gVim )
     nmap <silent><M-7> 7gt
     imap <silent><M-7> <Esc>7gti
     vmap <silent><M-7> <Esc>7gt
+
+"Alt+Shift+7 - go to local bookmark N7 ( in gVim )
+    nmap <silent><M-&> `g
+    imap <silent><M-&> <Esc>`gi
+    vmap <silent><M-&> <Esc>`g
+
+"Ctrl+7 - go to global bookmark N7 ( in gVim )
+    nmap <silent><C-7> `G
+    imap <silent><C-7> <Esc>`Gi
+    vmap <silent><C-7> <Esc>`G
+
+"Ctrl+Alt+7 - set local bookmark N7 ( in gVim )
+    nmap <silent><C-M-&> mg
+    imap <silent><C-M-&> <Esc>mgi
+    vmap <silent><C-M-&> <Esc>mggv
+
+"Ctrl+Shift+7 - set global bookmark N7 ( in gVim )
+    nmap <silent><C-S-&> mG
+    imap <silent><C-S-&> <Esc>mGi
+    vmap <silent><C-S-&> <Esc>mGgv
 
 "Alt+8 - go to 8th tab ( in gVim )
     nmap <silent><M-8> 8gt
     imap <silent><M-8> <Esc>8gti
     vmap <silent><M-8> <Esc>8gt
 
+"Alt+Shift+8 - go to local bookmark N8 ( in gVim )
+    nmap <silent><M-*> `h
+    imap <silent><M-*> <Esc>`hi
+    vmap <silent><M-*> <Esc>`h
+
+"Ctrl+8 - go to global bookmark N8 ( in gVim )
+    nmap <silent><C-8> `H
+    imap <silent><C-8> <Esc>`Hi
+    vmap <silent><C-8> <Esc>`H
+
+"Ctrl+Alt+8 - set local bookmark N8 ( in gVim )
+    nmap <silent><C-M-8> mh
+    imap <silent><C-M-8> <Esc>mhi
+    vmap <silent><C-M-8> <Esc>mhgv
+
+"Ctrl+Shift+8 - set global bookmark N8 ( in gVim )
+    nmap <silent><C-S-*> mH
+    imap <silent><C-S-*> <Esc>mHi
+    vmap <silent><C-S-*> <Esc>mHgv
+
 "Alt+9 - go to 9th tab ( in gVim )
     nmap <silent><M-9> 9gt
     imap <silent><M-9> <Esc>9gti
     vmap <silent><M-9> <Esc>9gt
+
+"Alt+Shift+9 - go to local bookmark N9 ( in gVim )
+    nmap <silent><M-(> `i
+    imap <silent><M-(> <Esc>`ii
+    vmap <silent><M-(> <Esc>`i
+
+"Ctrl+9 - go to global bookmark N9 ( in gVim )
+    nmap <silent><C-9> `I
+    imap <silent><C-9> <Esc>`Ii
+    vmap <silent><C-9> <Esc>`I
+
+"Ctrl+Alt+9 - set local bookmark N9 ( in gVim )
+    nmap <silent><C-M-9> mi
+    imap <silent><C-M-9> <Esc>mii
+    vmap <silent><C-M-9> <Esc>migv
+
+"Ctrl+Shift+9 - set global bookmark N9 ( in gVim )
+    nmap <silent><C-S-(> mI
+    imap <silent><C-S-(> <Esc>mIi
+    vmap <silent><C-S-(> <Esc>mIgv
 
 "Tab - move block right
     vmap <silent> <Tab> >gv
