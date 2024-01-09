@@ -1,10 +1,10 @@
-" auto-print the pair symbol ( in gVim )
+" auto-enter of 2nd symbol of pair( in gVim )
 
 if exists("g:loaded_autopairPlugin")
     finish
 endif
 
-let g:loaded_autopairPlugin = "1"       " 1= plugin is turned ON; 0= plugin is turned OFF
+let g:loaded_autopairPlugin = "1"   " 1= plugin is turned ON; 0= plugin is turned OFF
 
 if g:loaded_autopairPlugin == "0"
     finish

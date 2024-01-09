@@ -1,5 +1,5 @@
-" ------------------------------------------
-"       https://vimhelp.org/builtin.txt.html
+" --
+" https://vimhelp.org/builtin.txt.html
 
 " colorscheme slate
 " colorscheme torte
@@ -44,9 +44,6 @@ set shiftwidth=4
 set tabstop=4
 set expandtab
 
-set updatetime=30000  " interval of autosave ( ms )
-
-let @s = 1      "1 = auto-save is ON; 0 = auto-save is OFF
 let @t = ''     "line of the block to select
 let @u = 1      "search from the beginning of file
 let @v = ''     "string to search
@@ -245,7 +242,6 @@ function SaveSelection()
 endfunc
 
 function SaveFileAs(mode)
-    let b:start_time = localtime()
     if has("gui_running")
         :browse confirm save
         call ClearOutput()
@@ -253,6 +249,7 @@ function SaveFileAs(mode)
         execute(':w ' . input('Save file as : ') )
         call ClearOutput()
     endif
+    let b:last_save_time = localtime()
     if a:mode == 1
         if getcurpos()[2]>1
             call feedkeys('l')
@@ -266,10 +263,10 @@ function SaveFile(mode)
         if  bufname('%')[0] < ' '
             call SaveFileAs(0)
         else
-            :w
+            update
+            let b:last_save_time = localtime()
         endif
     endif
-    let b:start_time = localtime()
     call ClearOutput()
     if a:mode == 1
         call feedkeys('i')
@@ -453,24 +450,6 @@ function SelectBlock(mode)
     endif
 endfunc
 
-function AutoSave()
-    if !exists("b:start_time")
-        let b:start_time = localtime()
-    endif
-    if ( &modified > 0 ) && ( bufname('%')[0] > ' ' )
-        if ( ( localtime() - b:start_time ) >= ( &updatetime / 1000 ) )
-            update
-            let b:start_time = localtime()
-        endif
-    endif
-endfunction
-
-if @s > 0
-    let b:start_time = localtime()
-    au CursorHold,CursorHoldI * call AutoSave()
-    au CursorMoved,CursorMovedI * call AutoSave()
-endif
-
 if has("gui_running")
     set guioptions-=r
     set guifont=Consolas:h11
@@ -582,9 +561,9 @@ endif
 
 "Shift+F5 Menu 'Transformations'
     menu Transformations.Del_trail_spaces  :call DeleteTrailingSpaces()<Cr>
+    menu Transformations.Tabs_to_spaces    :call TabsToSpaces()<Cr>
     menu Transformations.Add_before_begins :call Insert(0)<Cr>
     menu Transformations.Add_after_ends    :call Insert(1)<Cr>
-    menu Transformations.Tabs_to_spaces    :call TabsToSpaces()<Cr>
     menu Transformations.Join_all_lines    :call JoinAllLines()<Cr>
     menu Transformations.Split_cur_line    :call SplitCurrentLine()<Cr>
     menu Transformations.CSV_into_SQL      :call Turn_CSV_into_SQL()<Cr>
@@ -678,84 +657,84 @@ endif
     vmap <silent><S-F8> <Esc>[c
 
 "F9 - go to local bookmark N1
-    nmap <F9> `a
-    imap <F9> <Esc>`ai
-    vmap <F9> <Esc>`a
+    nmap <F9> `w
+    imap <F9> <Esc>`wi
+    vmap <F9> <Esc>`w
 
 "Alt+F9 - go to global bookmark N1
-    nmap <M-F9> `A
-    imap <M-F9> <Esc>`Ai
-    vmap <M-F9> <Esc>`A
+    nmap <M-F9> `W
+    imap <M-F9> <Esc>`Wi
+    vmap <M-F9> <Esc>`W
 
 "Ctrl+F9 - set global bookmark N1
-    nmap <C-F9> mA
-    imap <C-F9> <Esc>mAi
-    vmap <C-F9> <Esc>mAgv
+    nmap <C-F9> mW
+    imap <C-F9> <Esc>mWi
+    vmap <C-F9> <Esc>mWgv
 
 "Shift+F9 - set local bookmark N1
-    nmap <S-F9> ma
-    imap <S-F9> <Esc>mai
-    vmap <S-F9> <Esc>magv
+    nmap <S-F9> mw
+    imap <S-F9> <Esc>mwi
+    vmap <S-F9> <Esc>mwgv
 
 "F10 - go to local bookmark N2
-    nmap <F10> `b
-    imap <F10> <Esc>`bi
-    vmap <F10> <Esc>`b
+    nmap <F10> `x
+    imap <F10> <Esc>`xi
+    vmap <F10> <Esc>`x
 
 "Alt+F10 - go to global bookmark N2
     nmap <M-F10> `B
-    imap <M-F10> <Esc>`Bi
-    vmap <M-F10> <Esc>`B
+    imap <M-F10> <Esc>`Xi
+    vmap <M-F10> <Esc>`X
 
 "Ctrl+F10 - set global bookmark N2
-    nmap <C-F10> mB
-    imap <C-F10> <Esc>mBi
-    vmap <C-F10> <Esc>mBgv
+    nmap <C-F10> mX
+    imap <C-F10> <Esc>mXi
+    vmap <C-F10> <Esc>mXgv
 
 "Shift+F10 - set local bookmark N2
-    nmap <S-F10> mb
-    imap <S-F10> <Esc>mbi
-    vmap <S-F10> <Esc>mbgv
+    nmap <S-F10> mx
+    imap <S-F10> <Esc>mxi
+    vmap <S-F10> <Esc>mxgv
 
 "F11 - go to local bookmark N3
-    nmap <F11> `c
-    imap <F11> <Esc>`ci
-    vmap <F11> <Esc>`c
+    nmap <F11> `y
+    imap <F11> <Esc>`yi
+    vmap <F11> <Esc>`y
 
 "Alt+F11 - go to global bookmark N3
-    nmap <M-F11> `C
-    imap <M-F11> <Esc>`Ci
-    vmap <M-F11> <Esc>`C
+    nmap <M-F11> `Y
+    imap <M-F11> <Esc>`Yi
+    vmap <M-F11> <Esc>`Y
 
 "Ctrl+F11 - set global bookmark N3
-    nmap <C-F11> mC
-    imap <C-F11> <Esc>mCi
-    vmap <C-F11> <Esc>mCgv
+    nmap <C-F11> mY
+    imap <C-F11> <Esc>mYi
+    vmap <C-F11> <Esc>mYgv
 
 "Shift+F11 - set local bookmark N3
-    nmap <S-F11> mc
-    imap <S-F11> <Esc>mci
-    vmap <S-F11> <Esc>mcgv
+    nmap <S-F11> my
+    imap <S-F11> <Esc>myi
+    vmap <S-F11> <Esc>mygv
 
 "F12 - go to local bookmark N4
-    nmap <silent><F12> `d
-    imap <F12> <Esc>`di
-    vmap <F12> <Esc>`d
+    nmap <silent><F12> `z
+    imap <F12> <Esc>`zi
+    vmap <F12> <Esc>`z
 
 "Alt+F12 - go to global bookmark N4
-    nmap <M-F12> `D
-    imap <M-F12> <Esc>`Di
-    vmap <M-F12> <Esc>`D
+    nmap <M-F12> `Z
+    imap <M-F12> <Esc>`Zi
+    vmap <M-F12> <Esc>`Z
 
 "Ctrl+F12 - set global bookmark N4
-    nmap <C-F12> mD
-    imap <C-F12> <Esc>mDi
-    vmap <C-F12> <Esc>mDgv
+    nmap <C-F12> mZ
+    imap <C-F12> <Esc>mZi
+    vmap <C-F12> <Esc>mZgv
 
 "Shift+F12 - set local bookmark N4
-    nmap <S-F12> md
-    imap <S-F12> <Esc>mdi
-    vmap <S-F12> <Esc>mdgv
+    nmap <S-F12> mz
+    imap <S-F12> <Esc>mzi
+    vmap <S-F12> <Esc>mzgv
 
 "Alt+1 - go to 1st tab ( in gVim )
     nmap <silent><M-1> 1gt
@@ -1200,10 +1179,10 @@ endif
     vmap <C-A> <Esc>ggVG
     imap <C-A> <Esc>ggVG
 
-"Ctrl+B - go to vertical-block-mode
-    nmap <C-B> <C-v>
-    imap <C-B> <Esc><C-v>
-    vmap <C-B> <Esc><C-v>
+"Ctrl+B - go to vertical-block-mode / multi-cursor insert
+    nmap <C-B> <C-V>
+    imap <C-B> <Esc><C-V>
+    vmap <C-B> I
 
 "Ctrl+C - copy
     nmap <C-C> yy
