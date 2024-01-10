@@ -1,4 +1,4 @@
-" Auto save of a modified current file
+" Auto save of modified file
 
 if exists("g:loaded_autosavePlugin")
     finish
@@ -13,16 +13,17 @@ if g:loaded_autosavePlugin == "0"
 endif
 
 function AutoSave()
+    if g:loaded_autosavePlugin == "0"
+        return
+    endif
+    let g:loaded_autosavePlugin = "0"
     if ( &modified > 0 ) && ( bufname('%')[0] > ' ' )
-        if !exists("b:last_save_time")
+        if ( localtime() - b:last_save_time ) >= ( &updatetime / 1000 )
+            update
             let b:last_save_time = localtime()
-        else
-            if ( localtime() - b:last_save_time ) >= ( &updatetime / 1000 )
-                update
-                let b:last_save_time = localtime()
-            endif
         endif
     endif
+    let g:loaded_autosavePlugin = "1"
 endfunction
 
 let b:last_save_time = localtime()

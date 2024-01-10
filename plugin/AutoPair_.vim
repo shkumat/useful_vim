@@ -1,4 +1,4 @@
-" auto-enter of 2nd symbol of pair( in gVim )
+" Auto-enter of 2nd symbol of pair( in gVim )
 
 if exists("g:loaded_autopairPlugin")
     finish

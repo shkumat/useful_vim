@@ -1,5 +1,5 @@
-" --
-" https://vimhelp.org/builtin.txt.html
+" --------------------------------------------------
+"              https://vimhelp.org/builtin.txt.html
 
 " colorscheme slate
 " colorscheme torte
@@ -283,6 +283,7 @@ function OpenFile()
     else
         :Explore
     endif
+    let b:last_save_time = localtime()
 endfunc
 
 function DeleteTrailingSpaces()
