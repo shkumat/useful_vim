@@ -1,5 +1,5 @@
-" --------------------------------------------------
-"              https://vimhelp.org/builtin.txt.html
+" -----------------------------------------------------------
+"                        https://vimhelp.org/builtin.txt.html
 
 " colorscheme slate
 " colorscheme torte
@@ -732,6 +732,11 @@ endif
     imap <C-F12> <Esc>mZi
     vmap <C-F12> <Esc>mZgv
 
+"Ctrl+Alt+F12 - go to function definition ( in gVim )
+    nmap <silent><C-M-F12> gd
+    imap <silent><C-M-F12> <Esc>gdi
+    vmap <silent><C-M-F12> <Esc>gd
+
 "Shift+F12 - set local bookmark N4
     nmap <S-F12> mz
     imap <S-F12> <Esc>mzi
@@ -978,6 +983,16 @@ endif
 "BackSpace - go to edit-mode
     nmap <silent><BS> i<BS>
 
+"Shift+BackSpace -jump to previous location( in gVim )
+    nmap <silent><S-BS> ''
+    imap <silent><S-BS> <Esc>''i
+    vmap <silent><S-BS> <Esc>''
+
+"Ctrl+BackSpace -delete word left ( in gVim )
+    nmap <silent><C-BS> bdwi
+    imap <silent><C-BS> <Esc>bdwi
+    vmap <silent><C-BS> <Esc>bdwi
+
 "Shift+Enter - print ;<Enter> ( in gVim )
     nmap <S-Enter> i;<Cr>
     imap <S-Enter> ;<Cr>
@@ -1109,6 +1124,14 @@ endif
     nmap <S-PageDown> v<PageDown>
     imap <S-PageDown> <PageDown>
 
+"Ctrl+Shift+Left - select word left ( in gVim )
+    nmap <C-S-Left> v<C-Left>
+    imap <C-S-Left> <Esc>v<C-Left>
+
+"Ctrl+Shift+Right - select word right ( in gVim )
+    nmap <C-S-Right> v<C-Right>
+    imap <C-S-Right> <Esc>v<C-Right>
+
 "Ctrl+` - show/hide menu-bar ( in gVim )
     nmap <silent><C-`> :call ShowHideMenubar()<Cr>
     imap <silent><C-`> <Esc>:call ShowHideMenubar()<Cr>i
@@ -1125,15 +1148,9 @@ endif
     imap <silent><C-]> <Esc>:call ClearOutput()<Cr>i
     vmap <silent><C-]> <Esc>:call ClearOutput()<Cr>
 
-"Ctrl+; - go to prev tab ( in gVim )
-    nmap <silent><C-;> :tabprev<Cr>
-    imap <silent><C-;> <Esc>:tabprev<Cr>
-    vmap <silent><C-;> <Esc>:tabprev<Cr>
+"Ctrl+; - reserved ( in gVim )
 
-"Ctrl+' - go to next tab ( in gVim )
-    nmap <silent><C-'> :tabprev<Cr>
-    imap <silent><C-'> <Esc>:tabprev<Cr>
-    vmap <silent><C-'> <Esc>:tabprev<Cr>
+"Ctrl+' - reserved ( in gVim )
 
 "Ctrl+, - split vertically ( in gVim )
     nmap <silent><C-,>  :call VSplit()<Cr>
@@ -1170,10 +1187,10 @@ endif
     imap <silent><C-0> <Esc>:call ChangeFontSize(0)<Cr>i
     vmap <silent><C-0> <Esc>:call ChangeFontSize(0)<Cr>v
 
-"Ctrl+Enter - clear output ( in gVim )
-    nmap <C-Enter> :call ClearOutput()<Cr>
-    imap <C-Enter> <Esc>:call ClearOutput()<Cr>i
-    vmap <C-Enter> <Esc>:call ClearOutput()<Cr>
+"Ctrl+Enter - open file under cursor  ( in gVim )
+    nmap <C-Enter> gf
+    imap <C-Enter> <Esc>gf
+    vmap <C-Enter> <Esc>gf
 
 "Ctrl+A - select all
     nmap <C-A> ggVG
