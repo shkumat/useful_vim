@@ -1,5 +1,5 @@
-" -----------------------------------------------------------
-"                        https://vimhelp.org/builtin.txt.html
+" ---------------------------------------------
+"         https://vimhelp.org/builtin.txt.html
 
 " colorscheme slate
 " colorscheme torte
@@ -44,13 +44,13 @@ set shiftwidth=4
 set tabstop=4
 set expandtab
 
-let @t = ''     "line of the block to select
-let @u = 1      "search from the beginning of file
-let @v = ''     "string to search
-let @w = 0      "is comparasion mode ON
-let @x = 11     "font size
-let @y = 1      "is menu-bar hidden
-let @z = 0      "is output-bar open
+let @t = ''         " line of the block to select
+let @u = 1          " search from the beginning of file
+let @v = ''         " string to search
+let @w = 0          " is comparasion mode ON
+let @x = 11         " font size
+let @y = 1          " is menu-bar hidden
+let @z = 0          " is output-bar open
 
 function RunScript()
     :!__.bat %
@@ -286,75 +286,6 @@ function OpenFile()
     let b:last_save_time = localtime()
 endfunc
 
-function DeleteTrailingSpaces()
-    try
-        :%s/\s\+$//g
-    catch
-    endtry
-    call ClearOutput()
-endfunc
-
-function TabsToSpaces()
-    let @a = ":%s/\t/    /g"
-    try
-        execute( @a )
-    catch
-    endtry
-    call ClearOutput()
-endfunc
-
-function Turn_CSV_into_SQL()
-    let @a = input('Delimiter : ','\t')
-    if  @a > ' '
-        let @a= ":%s/" . @a . "/','/g"
-        try
-            execute( @a )
-        catch
-        endtry
-        :%norm I,('
-        :%norm A')
-    endif
-    call ClearOutput()
-endfunc
-
-function SplitCurrentLine()
-    let @a = input('Delimiter : ')
-    let @a = ':.s/' . @a . '/\r/g'
-    try
-        execute @a
-    catch
-    endtry
-    call ClearOutput()
-endfunc
-
-function Insert(mode)
-    let @a = trim( @* )
-    let @a = input('String to insert : ' , @a)
-    if  @a > ''
-        if a:mode > 0
-            execute(':%norm A' . @a)
-        else
-            execute(':%s!^!' . @a . '!')
-        endif
-    endif
-    call ClearOutput()
-    call feedkeys('i')
-endfunc
-
-function JoinAllLines()
-    let @a = input('Delimiter : ')
-    if @a > ''
-        let @a = ':%s/\n/'. @a .'/g'
-    else
-        let @a = ':%s/\n//g'
-    endif
-    try
-        execute @a
-    catch
-    endtry
-    call ClearOutput()
-endfunc
-
 function SearchAndReplace(mode)
     let @a= ''
     if a:mode == 2
@@ -377,47 +308,6 @@ function SearchAndReplace(mode)
     call ClearOutput()
     if a:mode == 1
         call feedkeys('i')
-    endif
-endfunc
-
-function GetCommentForTheFile()
-    let CommentByFileType = { 'vim':'"','vimrc':'"','sql':'--','bat':'rem ','cmd':'rem ','py':'#','ps1':'#','c':'\/\/','h':'\/\/','cs':'\/\/','js':'\/\/','sc':'\/\/','ts':'\/\/','cpp':'\/\/','hpp':'\/\/','pas':'\/\/','java':'\/\/','scala':'\/\/' }
-    let @a = tolower( expand('%:e') )
-    if has_key( CommentByFileType , @a )
-        return CommentByFileType[ @a ]
-    else
-        return ''
-    endif
-endfunc
-
-function UnComment(mode)
-    let @a = GetCommentForTheFile()
-    if @a > ''
-        let @a = 's/^' . @a . '//'
-        if a:mode == 1
-            let @a = ":'<,'>" . @a
-        endif
-        try
-            execute( @a )
-        catch
-        endtry
-    endif
-endfunc
-
-function Comment(mode)
-    let @a = GetCommentForTheFile()
-    if @a > ''
-        if ( stridx( trim( getline(".") ) , @a ) !=-1 ) || ( @a=='\/\/' && stridx( trim( getline(".") ) , '//' ) !=-1 )
-            return
-        endif
-        let @a = 's!^!' . @a . '!'
-        if a:mode == 1
-            let @a = ":'<,'>" . @a
-        endif
-        try
-            execute( @a )
-        catch
-        endtry
     endif
 endfunc
 
@@ -462,15 +352,15 @@ endif
     nmap <silent><Esc> :call Exit(1)<Cr>
     imap <silent><Esc> <Esc>`^
 
+"F1 - print list of buffers
+    nmap <silent><F1> :ls<Cr>
+    imap <silent><F1> <Esc>:ls<Cr>
+    vmap <silent><F1> <Esc>:ls<Cr>
+
 "Alt+F1 - close folder
     nmap <silent><M-F1> zc
     vmap <silent><M-F1> zf
     imap <silent><M-F1> <Esc>zc<Cr>i
-
-"Ctrl+F1 - comment line/block
-    nmap <silent> <C-F1> :call Comment(0)<Cr>i
-    imap <silent> <C-F1> <Esc>:call Comment(0)<Cr>i
-    vmap <silent> <C-F1> <Esc>:call Comment(1)<Cr>i
 
 "Shift+F1 - match brace
     nmap <silent><S-F1> %
@@ -486,11 +376,6 @@ endif
     nmap <silent><M-F2> zo
     vmap <silent><M-F2> <Esc>zo
     imap <silent><M-F2> <Esc>zoi
-
-"Ctrl+F2 - unComment line/block
-    nmap <silent> <C-F2>  :call UnComment(0)<Cr>i
-    imap <silent> <C-F2>  <Esc>:call UnComment(0)<Cr>i
-    vmap <silent> <C-F2>  <Esc>:call UnComment(1)<Cr>i
 
 "Shift+F2 - save file as...
     nmap <S-F2> :call SaveFileAs(0)<Cr>
@@ -543,34 +428,10 @@ endif
     vmap <F5> <Del><C-v>
     cmap <F5> <C-r>"
 
-"Alt+F5 - Menu 'Controls'
-    menu Controls.Clear_Global_BMs :delmarks A-Z0-9<Cr>:echo ''<Cr>
-    menu Controls.Clear_Local_BMs  :delmarks!<Cr>:echo ''<Cr>
-    menu Controls.Collapse_all     zM
-    menu Controls.UnCollapse_all   zR
-    menu Controls.Copy_FilePath    :let @* = expand('%:p')<Cr>:echo ''<Cr>
-    menu Controls.Show_Histosy     :bro ol<Cr>
-    menu Controls.Close_All_Files  :%bd<Cr>:echo ''<Cr>
-    nmap <silent><M-F5>  :emenu Controls.<TAB>
-    imap <silent><M-F5>  <Esc>:emenu Controls.<TAB>
-    vmap <silent><M-F5>  <Esc>:emenu Controls.<TAB>
-
 "Ctrl+F5 - run script
     nmap <silent><C-F5> :call SaveFile(0)<Cr>:call RunScript()<Cr>
     imap <silent><C-F5> <Esc>:call SaveFile(0)<Cr>:call RunScript()<Cr>
     vmap <silent><C-F5> <Esc>:call SaveFile(0)<Cr>:call RunScript()<Cr>
-
-"Shift+F5 Menu 'Transformations'
-    menu Transformations.Del_trail_spaces  :call DeleteTrailingSpaces()<Cr>
-    menu Transformations.Tabs_to_spaces    :call TabsToSpaces()<Cr>
-    menu Transformations.Add_before_begins :call Insert(0)<Cr>
-    menu Transformations.Add_after_ends    :call Insert(1)<Cr>
-    menu Transformations.Join_all_lines    :call JoinAllLines()<Cr>
-    menu Transformations.Split_cur_line    :call SplitCurrentLine()<Cr>
-    menu Transformations.CSV_into_SQL      :call Turn_CSV_into_SQL()<Cr>
-    nmap <silent><S-F5>  :emenu Transformations.<Tab>
-    imap <silent><S-F5>  <Esc>:emenu Transformations.<Tab>
-    vmap <silent><S-F5>  <Esc>:emenu Transformations.<Tab>
 
 "F6 - goto next view / calculate selected expression
     nmap <F6> <C-w>w
@@ -586,10 +447,17 @@ endif
     imap <silent><M-F6>  <Esc>:emenu Split.<Tab>
     vmap <silent><M-F6>  <Esc>:emenu Split.<Tab>
 
-"Ctrl+F6  - print list of buffers
-    nmap <silent><C-F6> :ls<Cr>
-    imap <silent><C-F6> <Esc>:ls<Cr>
-    vmap <silent><C-F6> <Esc>:ls<Cr>
+"Ctrl+F6 - Menu 'Controls'
+    menu Controls.Clear_Global_BMs :delmarks A-Z0-9<Cr>:echo ''<Cr>
+    menu Controls.Clear_Local_BMs  :delmarks!<Cr>:echo ''<Cr>
+    menu Controls.Collapse_all     zM
+    menu Controls.UnCollapse_all   zR
+    menu Controls.Copy_FilePath    :let @* = expand('%:p')<Cr>:echo ''<Cr>
+    menu Controls.Show_Histosy     :bro ol<Cr>
+    menu Controls.Close_All_Files  :%bd<Cr>:echo ''<Cr>
+    nmap <silent><C-F6>  :emenu Controls.<TAB>
+    imap <silent><C-F6>  <Esc>:emenu Controls.<TAB>
+    vmap <silent><C-F6>  <Esc>:emenu Controls.<TAB>
 
 "Shift+F6 - goto prev view
     nmap <silent><S-F6> <C-w>p
@@ -747,225 +615,45 @@ endif
     imap <silent><M-1> <Esc>1gti
     vmap <silent><M-1> <Esc>1gt
 
-"Alt+Shift+1 - go to local bookmark N1 ( in gVim )
-    nmap <silent><M-!> `a
-    imap <silent><M-!> <Esc>`ai
-    vmap <silent><M-!> <Esc>`a
-
-"Ctrl+1 - go to global bookmark N1 ( in gVim )
-    nmap <silent><C-1> `A
-    imap <silent><C-1> <Esc>`Ai
-    vmap <silent><C-1> <Esc>`A
-
-"Ctrl+Alt+1 - set local bookmark N1 ( in gVim )
-    nmap <silent><C-M-1> ma
-    imap <silent><C-M-1> <Esc>mai
-    vmap <silent><C-M-1> <Esc>magv
-
-"Ctrl+Shift+1 - set global bookmark N1 ( in gVim )
-    nmap <silent><C-S-!> mA
-    imap <silent><C-S-!> <Esc>mAi
-    vmap <silent><C-S-!> <Esc>mAgv
-
 "Alt+2 - go to 2nd tab ( in gVim )
     nmap <silent><M-2> 2gt
     imap <silent><M-2> <Esc>2gti
     vmap <silent><M-2> <Esc>2gt
-
-"Alt+Shift+2 - go to local bookmark N2 ( in gVim )
-    nmap <silent><M-@> `b
-    imap <silent><M-@> <Esc>`bi
-    vmap <silent><M-@> <Esc>`b
-
-"Ctrl+2 - go to global bookmark N2 ( in gVim )
-    nmap <silent><C-2> `B
-    imap <silent><C-2> <Esc>`Bi
-    vmap <silent><C-2> <Esc>`B
-
-"Ctrl+Alt+2 - set local bookmark N2 ( in gVim )
-    nmap <silent><C-M-2> mb
-    imap <silent><C-M-2> <Esc>mbi
-    vmap <silent><C-M-2> <Esc>mbgv
-
-"Ctrl+Shift+2 - set global bookmark N2 ( in gVim )
-    nmap <silent><C-S-@> mB
-    imap <silent><C-S-@> <Esc>mBi
-    vmap <silent><C-S-@> <Esc>mBgv
 
 "Alt+3 - go to 3rd tab ( in gVim )
     nmap <silent><M-3> 3gt
     imap <silent><M-3> <Esc>3gti
     vmap <silent><M-3> <Esc>3gt
 
-"Alt+Shift+3 - go to local bookmark N3 ( in gVim )
-    nmap <silent><M-#> `c
-    imap <silent><M-#> <Esc>`ci
-    vmap <silent><M-#> <Esc>`c
-
-"Ctrl+3 - go to global bookmark N3 ( in gVim )
-    nmap <silent><C-3> `C
-    imap <silent><C-3> <Esc>`Ci
-    vmap <silent><C-3> <Esc>`C
-
-"Ctrl+Alt+3 - set local bookmark N3 ( in gVim )
-    nmap <silent><C-M-3> mc
-    imap <silent><C-M-3> <Esc>mci
-    vmap <silent><C-M-3> <Esc>mcgv
-
-"Ctrl+Shift+3 - set global bookmark N3 ( in gVim )
-    nmap <silent><C-S-#> mC
-    imap <silent><C-S-#> <Esc>mCi
-    vmap <silent><C-S-#> <Esc>mCgv
-
 "Alt+4 - go to 4th tab ( in gVim )
     nmap <silent><M-4> 4gt
     imap <silent><M-4> <Esc>4gti
     vmap <silent><M-4> <Esc>4gt
-
-"Alt+Shift+4 - go to local bookmark N4 ( in gVim )
-    nmap <silent><M-$> `d
-    imap <silent><M-$> <Esc>`di
-    vmap <silent><M-$> <Esc>`d
-
-"Ctrl+4 - go to global bookmark N4 ( in gVim )
-    nmap <silent><C-4> `D
-    imap <silent><C-4> <Esc>`Di
-    vmap <silent><C-4> <Esc>`D
-
-"Ctrl+Alt+4 - set local bookmark N4 ( in gVim )
-    nmap <silent><C-M-4> md
-    imap <silent><C-M-4> <Esc>mdi
-    vmap <silent><C-M-4> <Esc>mdgv
-
-"Ctrl+Shift+4 - set global bookmark N4 ( in gVim )
-    nmap <silent><C-S-$> mD
-    imap <silent><C-S-$> <Esc>mDi
-    vmap <silent><C-S-$> <Esc>mDgv
 
 "Alt+5 - go to 5th tab ( in gVim )
     nmap <silent><M-5> 5gt
     imap <silent><M-5> <Esc>5gti
     vmap <silent><M-5> <Esc>5gt
 
-"Alt+Shift+5 - go to local bookmark N5 ( in gVim )
-    nmap <silent><M-%> `e
-    imap <silent><M-%> <Esc>`ei
-    vmap <silent><M-%> <Esc>`e
-
-"Ctrl+5 - go to global bookmark N5 ( in gVim )
-    nmap <silent><C-5> `E
-    imap <silent><C-5> <Esc>`Ei
-    vmap <silent><C-5> <Esc>`E
-
-"Ctrl+Alt+5 - set local bookmark N5 ( in gVim )
-    nmap <silent><C-M-5> me
-    imap <silent><C-M-5> <Esc>mei
-    vmap <silent><C-M-5> <Esc>megv
-
-"Ctrl+Shift+5 - set global bookmark N5 ( in gVim )
-    nmap <silent><C-S-%> mE
-    imap <silent><C-S-%> <Esc>mEi
-    vmap <silent><C-S-%> <Esc>mEgv
-
 "Alt+6 - go to 6th tab ( in gVim )
     nmap <silent><M-6> 6gt
     imap <silent><M-6> <Esc>6gti
     vmap <silent><M-6> <Esc>6gt
-
-"Alt+Shift+6 - go to local bookmark N6 ( in gVim )
-    nmap <silent><M-^> `f
-    imap <silent><M-^> <Esc>`fi
-    vmap <silent><M-^> <Esc>`f
-
-"Ctrl+6 - go to global bookmark N6 ( in gVim )
-    nmap <silent><C-6> `F
-    imap <silent><C-6> <Esc>`Fi
-    vmap <silent><C-6> <Esc>`F
-
-"Ctrl+Alt+6 - set local bookmark N6 ( in gVim )
-    nmap <silent><C-M-6> mf
-    imap <silent><C-M-6> <Esc>mfi
-    vmap <silent><C-M-6> <Esc>mfgv
-
-"Ctrl+Shift+6 - set global bookmark N6 ( in gVim )
-    nmap <silent><C-S-^> mF
-    imap <silent><C-S-^> <Esc>mFi
-    vmap <silent><C-S-^> <Esc>mFgv
 
 "Alt+7 - go to 7th tab ( in gVim )
     nmap <silent><M-7> 7gt
     imap <silent><M-7> <Esc>7gti
     vmap <silent><M-7> <Esc>7gt
 
-"Alt+Shift+7 - go to local bookmark N7 ( in gVim )
-    nmap <silent><M-&> `g
-    imap <silent><M-&> <Esc>`gi
-    vmap <silent><M-&> <Esc>`g
-
-"Ctrl+7 - go to global bookmark N7 ( in gVim )
-    nmap <silent><C-7> `G
-    imap <silent><C-7> <Esc>`Gi
-    vmap <silent><C-7> <Esc>`G
-
-"Ctrl+Alt+7 - set local bookmark N7 ( in gVim )
-    nmap <silent><C-M-&> mg
-    imap <silent><C-M-&> <Esc>mgi
-    vmap <silent><C-M-&> <Esc>mggv
-
-"Ctrl+Shift+7 - set global bookmark N7 ( in gVim )
-    nmap <silent><C-S-&> mG
-    imap <silent><C-S-&> <Esc>mGi
-    vmap <silent><C-S-&> <Esc>mGgv
-
 "Alt+8 - go to 8th tab ( in gVim )
     nmap <silent><M-8> 8gt
     imap <silent><M-8> <Esc>8gti
     vmap <silent><M-8> <Esc>8gt
 
-"Alt+Shift+8 - go to local bookmark N8 ( in gVim )
-    nmap <silent><M-*> `h
-    imap <silent><M-*> <Esc>`hi
-    vmap <silent><M-*> <Esc>`h
-
-"Ctrl+8 - go to global bookmark N8 ( in gVim )
-    nmap <silent><C-8> `H
-    imap <silent><C-8> <Esc>`Hi
-    vmap <silent><C-8> <Esc>`H
-
-"Ctrl+Alt+8 - set local bookmark N8 ( in gVim )
-    nmap <silent><C-M-8> mh
-    imap <silent><C-M-8> <Esc>mhi
-    vmap <silent><C-M-8> <Esc>mhgv
-
-"Ctrl+Shift+8 - set global bookmark N8 ( in gVim )
-    nmap <silent><C-S-*> mH
-    imap <silent><C-S-*> <Esc>mHi
-    vmap <silent><C-S-*> <Esc>mHgv
-
 "Alt+9 - go to 9th tab ( in gVim )
     nmap <silent><M-9> 9gt
     imap <silent><M-9> <Esc>9gti
     vmap <silent><M-9> <Esc>9gt
-
-"Alt+Shift+9 - go to local bookmark N9 ( in gVim )
-    nmap <silent><M-(> `i
-    imap <silent><M-(> <Esc>`ii
-    vmap <silent><M-(> <Esc>`i
-
-"Ctrl+9 - go to global bookmark N9 ( in gVim )
-    nmap <silent><C-9> `I
-    imap <silent><C-9> <Esc>`Ii
-    vmap <silent><C-9> <Esc>`I
-
-"Ctrl+Alt+9 - set local bookmark N9 ( in gVim )
-    nmap <silent><C-M-9> mi
-    imap <silent><C-M-9> <Esc>mii
-    vmap <silent><C-M-9> <Esc>migv
-
-"Ctrl+Shift+9 - set global bookmark N9 ( in gVim )
-    nmap <silent><C-S-(> mI
-    imap <silent><C-S-(> <Esc>mIi
-    vmap <silent><C-S-(> <Esc>mIgv
 
 "Tab - move block right
     vmap <silent> <Tab> >gv
